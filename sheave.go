@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"strings"
 
 	"github.com/mikeclarke/go-irclib"
@@ -11,26 +12,23 @@ import (
 
 func GopherHandler(event *irc.Event) {
 	client := event.Client
-
-	fmt.Println(event)
 	channel := event.Arguments[0]
-	fmt.Printf("args: %+v", channel)
-	//Array: [#pdxgo ryana: I'll have to check pretty out]
 
 	if channel == "#pdxgo" || channel == "#pdxgotest" {
 		if len(event.Arguments) >= 2 {
 			cmd := strings.Trim(event.Arguments[1], " ")
-			fmt.Printf("CMD:'%s'\n", cmd)
-			msg := "Hack Night 2014/7/9"
+			log.Printf("Message:'%s'\n", cmd)
 			switch cmd {
 			case "!nextmeetup":
-				client.Privmsg("#pdxgotest", msg)
+				log.Printf("Channel: %+v", channel)
+				msg := "Hack Night 2014/7/9"
+				client.Privmsg(channel, msg)
 			}
 		}
 	}
 }
 
-type Config struct {
+type IRCConfig struct {
 	Server   string
 	UserName string
 	RealName string
@@ -38,37 +36,36 @@ type Config struct {
 	Channels []string
 }
 
-func parseConfig(path string) {
+func parseConfig(path string) IRCConfig {
 	contents, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println(err)
 	}
-	var conf Config
+	var conf IRCConfig
 	err = json.Unmarshal(contents, &conf)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Printf("%#v\n", conf)
+	return conf
 }
 
 func main() {
-	parseConfig("conf.json")
+	ircconfig := parseConfig("conf.json")
 
-	/*
-		ircc := irc.New("sheave", "sheave")
-		ircc.Server = "chat.freenode.net:6667"
-		ircc.RealName = "PDX Gopher"
+	ircc := irc.New(ircconfig.UserName, ircconfig.UserName)
+	ircc.Server = ircconfig.Server
+	ircc.RealName = ircconfig.RealName
+	ircc.Password = ircconfig.Passwd
 
-		fmt.Println(ircc)
-		connErr := ircc.Connect("chat.freenode.net:6667")
-		if connErr != nil {
-			fmt.Println("Connection Error: \n", connErr)
-		}
+	connErr := ircc.Connect(ircc.Server)
+	if connErr != nil {
+		fmt.Println("Connection Error: \n", connErr)
+	}
 
-		fmt.Printf("Nick: %+v\n", ircc.GetNick())
-		ircc.Join("#pdxgotest")
-		ircc.AddHandler(GopherHandler)
-		ircc.Run()
-
-	*/
+	for _, v := range ircconfig.Channels {
+		fmt.Println("Joining: ", v)
+		ircc.Join(v)
+	}
+	ircc.AddHandler(GopherHandler)
+	ircc.Run()
 }

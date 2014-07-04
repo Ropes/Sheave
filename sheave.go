@@ -49,9 +49,20 @@ func parseConfig(path string) IRCConfig {
 	return conf
 }
 
-func main() {
-	ircconfig := parseConfig("conf.json")
+func parseCalendar(path string) interface{} {
+	contents, err := ioutil.ReadFile(path)
+	if err != nil {
+		fmt.Println(err)
+	}
+	var cal interface{}
+	err = json.Unmarshal(contents, &cal)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return cal
+}
 
+func IRCConnect(ircconfig IRCConfig) {
 	ircc := irc.New(ircconfig.UserName, ircconfig.UserName)
 	ircc.Server = ircconfig.Server
 	ircc.RealName = ircconfig.RealName
@@ -68,4 +79,12 @@ func main() {
 	}
 	ircc.AddHandler(GopherHandler)
 	ircc.Run()
+}
+
+func main() {
+	cal := parseCalendar("calendar.json")
+	fmt.Println(cal)
+
+	ircconfig := parseConfig("conf.json")
+	IRCConnect(ircconfig)
 }

@@ -1,7 +1,9 @@
-package sheave
+package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"strings"
 
 	"github.com/mikeclarke/go-irclib"
@@ -28,20 +30,45 @@ func GopherHandler(event *irc.Event) {
 	}
 }
 
-func main() {
-	ircc := irc.New("sheave", "sheave")
-	ircc.Server = "chat.freenode.net:6667"
-	ircc.RealName = "PDX Gopher"
+type Config struct {
+	Server   string
+	UserName string
+	RealName string
+	Passwd   string
+	Channels []string
+}
 
-	fmt.Println(ircc)
-	connErr := ircc.Connect("chat.freenode.net:6667")
-	if connErr != nil {
-		fmt.Println("Connection Error: \n", connErr)
+func parseConfig(path string) {
+	contents, err := ioutil.ReadFile(path)
+	if err != nil {
+		fmt.Println(err)
 	}
+	var conf Config
+	err = json.Unmarshal(contents, &conf)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Printf("%#v\n", conf)
+}
 
-	fmt.Printf("Nick: %+v\n", ircc.GetNick())
-	ircc.Join("#pdxgotest")
-	ircc.AddHandler(GopherHandler)
-	ircc.Run()
+func main() {
+	parseConfig("conf.json")
 
+	/*
+		ircc := irc.New("sheave", "sheave")
+		ircc.Server = "chat.freenode.net:6667"
+		ircc.RealName = "PDX Gopher"
+
+		fmt.Println(ircc)
+		connErr := ircc.Connect("chat.freenode.net:6667")
+		if connErr != nil {
+			fmt.Println("Connection Error: \n", connErr)
+		}
+
+		fmt.Printf("Nick: %+v\n", ircc.GetNick())
+		ircc.Join("#pdxgotest")
+		ircc.AddHandler(GopherHandler)
+		ircc.Run()
+
+	*/
 }

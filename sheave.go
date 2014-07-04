@@ -49,6 +49,10 @@ func parseConfig(path string) IRCConfig {
 	return conf
 }
 
+type Hacknights struct {
+	time map[string]interface{}
+}
+
 func parseCalendar(path string) interface{} {
 	contents, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -82,9 +86,17 @@ func IRCConnect(ircconfig IRCConfig) {
 }
 
 func main() {
-	cal := parseCalendar("calendar.json")
+	cal := parseCalendar("hacknights.json")
 	fmt.Println(cal)
+	/*
+		for k, v := range cal {
+			fmt.Println(k)
+			fmt.Println(v)
+		}
+	*/
 
-	ircconfig := parseConfig("conf.json")
-	IRCConnect(ircconfig)
+	/*
+		ircconfig := parseConfig("conf.json")
+		IRCConnect(ircconfig)
+	*/
 }

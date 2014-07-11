@@ -10,6 +10,7 @@ import (
 	"github.com/mikeclarke/go-irclib"
 )
 
+//GopherHandler which responds with the next meeting type for the !nextmeetup command
 func GopherHandler(event *irc.Event) {
 	client := event.Client
 	channel := event.Arguments[0]
@@ -17,15 +18,24 @@ func GopherHandler(event *irc.Event) {
 	if channel == "#pdxgo" || channel == "#pdxgotest" {
 		if len(event.Arguments) >= 2 {
 			cmd := strings.Trim(event.Arguments[1], " ")
-			log.Printf("Message:'%s'\n", cmd)
+			log.Printf("Event: %#v\n", event)
+			user := PrivMsgUser(event)
+			log.Printf("Message:'%#v'\n", event.Arguments)
 			switch cmd {
 			case "!nextmeetup":
 				log.Printf("Channel: %+v", channel)
-				msg := "Hack Night 2014/7/9"
+				msg := fmt.Sprintf("%s: %s", user, "meetingtime!")
 				client.Privmsg(channel, msg)
 			}
 		}
 	}
+}
+
+//PrivMsgUser returns the user's name who sent a message via the Event object
+func PrivMsgUser(event *irc.Event) string {
+	prefix := event.Prefix
+	split := strings.Split(prefix, "!")
+	return split[0]
 }
 
 type IRCConfig struct {
@@ -50,20 +60,22 @@ func parseConfig(path string) IRCConfig {
 }
 
 type Hacknights struct {
-	time map[string]interface{}
+	data map[string]interface{}
 }
 
-func parseCalendar(path string) interface{} {
+func parseCalendar(path string) (interface{}, error) {
 	contents, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println(err)
+		return nil, err
 	}
 	var cal interface{}
 	err = json.Unmarshal(contents, &cal)
 	if err != nil {
 		fmt.Println(err)
+		return nil, err
 	}
-	return cal
+	return cal, nil
 }
 
 func IRCConnect(ircconfig IRCConfig) {
@@ -86,17 +98,17 @@ func IRCConnect(ircconfig IRCConfig) {
 }
 
 func main() {
-	cal := parseCalendar("hacknights.json")
-	fmt.Println(cal)
+	hack, err := parseCalendar("hacknights.json")
+	if err != nil {
+		panic(fmt.Sprintf("Error parsing calendar: %v", err))
+	}
+	fmt.Println(hack)
 	/*
 		for k, v := range cal {
 			fmt.Println(k)
 			fmt.Println(v)
 		}
 	*/
-
-	/*
-		ircconfig := parseConfig("conf.json")
-		IRCConnect(ircconfig)
-	*/
+	ircconfig := parseConfig("conf.json")
+	IRCConnect(ircconfig)
 }

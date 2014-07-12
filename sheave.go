@@ -10,6 +10,20 @@ import (
 	"github.com/mikeclarke/go-irclib"
 )
 
+var hacknight interface{}
+var talknight interface{}
+
+var events struct {
+	hacknight interface{}
+	talknight interface{}
+}
+
+func init() {
+	//Events := &events{hacknight, talknight}
+	events.hacknight, _ = parseCalendar("hacknights.json")
+	events.talknight, _ = parseCalendar("talknights.json")
+}
+
 //GopherHandler which responds with the next meeting type for the !nextmeetup command
 func GopherHandler(event *irc.Event) {
 	client := event.Client
@@ -20,12 +34,24 @@ func GopherHandler(event *irc.Event) {
 			cmd := strings.Trim(event.Arguments[1], " ")
 			log.Printf("Event: %#v\n", event)
 			user := PrivMsgUser(event)
-			log.Printf("Message:'%#v'\n", event.Arguments)
+			//log.Printf("Message:'%#v'\n", event.Arguments)
 			switch cmd {
 			case "!nextmeetup":
 				log.Printf("Channel: %+v", channel)
 				msg := fmt.Sprintf("%s: %s", user, "meetingtime!")
 				client.Privmsg(channel, msg)
+			case "!nexttalk":
+				log.Printf("Channel: %+v", channel)
+
+				msg := fmt.Sprintf("%s: Next Talk night: %s", user, talknight)
+				client.Privmsg(channel, msg)
+			case "!nexthack":
+				log.Printf("Channel: %+v", channel)
+				msg := fmt.Sprintf("%s: %s", user, "meetingtime!")
+				client.Privmsg(channel, msg)
+			case "!sheavehelp":
+				client.Privmsg(channel, "Help msg")
+
 			}
 		}
 	}
@@ -98,17 +124,23 @@ func IRCConnect(ircconfig IRCConfig) {
 }
 
 func main() {
-	hack, err := parseCalendar("hacknights.json")
-	if err != nil {
-		panic(fmt.Sprintf("Error parsing calendar: %v", err))
-	}
-	fmt.Println(hack)
+	/*
+		hacknight, err := parseCalendar("hacknights.json")
+		if err != nil {
+			panic(fmt.Sprintf("Error parsing calendar: %v", err))
+		}
+		talknight, err := parseCalendar("talknights.json")
+		if err != nil {
+			panic(fmt.Sprintf("Error parsing calendar: %v", err))
+		}
+	*/
 	/*
 		for k, v := range cal {
 			fmt.Println(k)
 			fmt.Println(v)
 		}
 	*/
-	ircconfig := parseConfig("conf.json")
-	IRCConnect(ircconfig)
+	//ircconfig := parseConfig("conf.json")
+	fmt.Println("events:\n%+v", events)
+	//IRCConnect(ircconfig)
 }

@@ -1,4 +1,4 @@
-package main
+package sheave
 
 import (
 	"encoding/json"
@@ -10,18 +10,19 @@ import (
 	"github.com/mikeclarke/go-irclib"
 )
 
-var hacknight interface{}
-var talknight interface{}
-
-var events struct {
+type Events struct {
 	hacknight interface{}
 	talknight interface{}
 }
 
-func init() {
-	//Events := &events{hacknight, talknight}
-	events.hacknight, _ = parseCalendar("hacknights.json")
-	events.talknight, _ = parseCalendar("talknights.json")
+var events Events
+
+func LoadCalendar() {
+	c := make(chan interface{})
+	go parseCalendar("hacknights.json", c)
+	go parseCalendar("talknights.json", c)
+
+	events.hacknight, events.talknight = <-c, <-c
 }
 
 //GopherHandler which responds with the next meeting type for the !nextmeetup command
@@ -42,8 +43,7 @@ func GopherHandler(event *irc.Event) {
 				client.Privmsg(channel, msg)
 			case "!nexttalk":
 				log.Printf("Channel: %+v", channel)
-
-				msg := fmt.Sprintf("%s: Next Talk night: %s", user, talknight)
+				msg := fmt.Sprintf("%s: Next Talk night: %s", user)
 				client.Privmsg(channel, msg)
 			case "!nexthack":
 				log.Printf("Channel: %+v", channel)
@@ -89,19 +89,19 @@ type Hacknights struct {
 	data map[string]interface{}
 }
 
-func parseCalendar(path string) (interface{}, error) {
+func parseCalendar(path string, e chan interface{}) {
 	contents, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println(err)
-		return nil, err
+		e <- nil
 	}
 	var cal interface{}
 	err = json.Unmarshal(contents, &cal)
 	if err != nil {
 		fmt.Println(err)
-		return nil, err
+		e <- nil
 	}
-	return cal, nil
+	e <- cal
 }
 
 func IRCConnect(ircconfig IRCConfig) {
@@ -134,13 +134,8 @@ func main() {
 			panic(fmt.Sprintf("Error parsing calendar: %v", err))
 		}
 	*/
-	/*
-		for k, v := range cal {
-			fmt.Println(k)
-			fmt.Println(v)
-		}
-	*/
 	//ircconfig := parseConfig("conf.json")
-	fmt.Println("events:\n%+v", events)
+	LoadCalendar()
+	fmt.Printf("events:\n%#v\n", events.talknight)
 	//IRCConnect(ircconfig)
 }

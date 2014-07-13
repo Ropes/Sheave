@@ -1,7 +1,9 @@
 package sheave
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"testing"
 )
 
@@ -14,19 +16,31 @@ func TestLocalEventParsing(t *testing.T) {
 
 type Talk struct {
 	location    string
-	lat         float64
+	lat         string
 	Description []string
 }
 
-func TestTargetEventParsing(t *testing.T) {
+func parseCal(path string, e chan Talk) {
+	contents, err := ioutil.ReadFile(path)
+	var cal Talk
+	if err != nil {
+		fmt.Println(err)
+		e <- cal
+	}
+	err = json.Unmarshal(contents, &cal)
+	if err != nil {
+		fmt.Println(err)
+		e <- cal
+	}
+	e <- cal
+}
 
-	c := make(chan interface{})
-	go parseCalendar("testing/resources/talking.json", c)
+func TestTalkTargetEventParsing(t *testing.T) {
+
+	c := make(chan Talk)
+	go parseCal("testing/resources/talking.json", c)
 	jsn := <-c
-	fmt.Println(jsn)
-	/*
-		if jsn.location != "ESRI" {
-			t.Errorf("Location incorrect: %#v", jsn)
-		}
-	*/
+	if jsn.location != "ESRI" {
+		t.Errorf("Location incorrect: %#v", jsn)
+	}
 }

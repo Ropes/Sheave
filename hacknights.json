@@ -1,10 +1,10 @@
 {
-        "time": "2014-07-10T01:30:00.000Z",
-        "location": "Urban Airship Lounge",
-        "lat": 45.525393,
-        "lon": -122.685846,
-        "topic": "Collocating with PDXPython for hack night",
-        "link": "https://t.co/m4nlm1OXzE",
+        "Time": "2014-07-10T01:30:00.000Z",
+        "Location": "Urban Airship Lounge",
+        "Lat": 45.525393,
+        "Lon": -122.685846,
+        "Topic": "Collocating with PDXPython for hack night",
+        "Link": "https://t.co/m4nlm1OXzE",
         "Description": [
             "Greetings Portland Gophers,", 
         "After speaking with people in #pdxgo irc, there seemed to be decent interest for a hack night, so I worked on finding a space. After weighing location options(and amount of effort to setup vs unknown interest level), I've secured a collocation with the PDXPython hack night(2014/7/9 6:30PM) which takes place on the second Wednesday of the month in Urban Airship's comfy upstairs lounge.  New venues have opened up since I secured the space, but at least initially to gauge interest I think collocation works best.",

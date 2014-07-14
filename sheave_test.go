@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"testing"
+	"time"
 )
 
 func TestLocalEventParsing(t *testing.T) {
@@ -14,17 +15,20 @@ func TestLocalEventParsing(t *testing.T) {
 	}
 }
 
-type Talk struct {
+type Event struct {
+	Time        time.Time
 	Localtime   string
 	Location    string
 	Lat         float64
+	Lon         float64
 	Topic       string
 	Description []string
+	Notes       string
 }
 
-func parseCal(path string, e chan Talk) {
+func parseCal(path string, e chan Event) {
 	contents, err := ioutil.ReadFile(path)
-	var cal Talk
+	var cal Event
 	if err != nil {
 		fmt.Println(err)
 		e <- cal
@@ -38,10 +42,10 @@ func parseCal(path string, e chan Talk) {
 }
 
 func TestTalkTargetEventParsing(t *testing.T) {
-
-	c := make(chan Talk)
+	c := make(chan Event)
 	go parseCal("testing/resources/talking.json", c)
 	jsn := <-c
+	fmt.Printf("%#v\n", jsn)
 	if jsn.Location != "ESRI" {
 		t.Errorf("Location incorrect: %#v", jsn)
 	}

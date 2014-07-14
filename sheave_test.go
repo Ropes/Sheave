@@ -15,8 +15,10 @@ func TestLocalEventParsing(t *testing.T) {
 }
 
 type Talk struct {
-	location    string
-	lat         string
+	Localtime   string
+	Location    string
+	Lat         float64
+	Topic       string
 	Description []string
 }
 
@@ -40,7 +42,10 @@ func TestTalkTargetEventParsing(t *testing.T) {
 	c := make(chan Talk)
 	go parseCal("testing/resources/talking.json", c)
 	jsn := <-c
-	if jsn.location != "ESRI" {
+	if jsn.Location != "ESRI" {
 		t.Errorf("Location incorrect: %#v", jsn)
+	}
+	if jsn.Lat != 45.521525 {
+		t.Errorf("Latitude incorrect(45.521525): %#v", jsn)
 	}
 }

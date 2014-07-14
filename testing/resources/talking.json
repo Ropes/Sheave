@@ -1,10 +1,10 @@
 {
-    "time": "2014-07-23T01:30:00.000Z",
-    "localtime": "Tuesday",
-    "location": "ESRI",
-    "lat": 45.521525,  
-    "lon": -122.677430,
-    "topic": "Go Team OSCon Party!",
+    "Time": "2014-07-23T01:30:00.000Z",
+    "Localtime": "Tuesday",
+    "Location": "ESRI",
+    "Lat": 45.521525,  
+    "Lon": -122.677430,
+    "Topic": "Go Team OSCon Party!",
     "Notes": "",
     "Description": ["Go Team for OSCon want to have a party!", "Topic yet to be set"]
 }

@@ -1,10 +1,11 @@
-package sheave
+package main
 
 import "testing"
 
-func TestLocalEventParsing(t *testing.T) {
+func TestLocalLoadCalendarParsing(t *testing.T) {
 	LoadCalendar()
-	if events.talknight == nil || events.hacknight == nil {
+	//fmt.Println(events.hacknight.Time.Unix())
+	if events.talknight.Time.Unix() == -62135596800 || events.hacknight.Time.Unix() == -62135596800 {
 		t.Errorf("Events nil!: %#v", events)
 	}
 }
@@ -19,5 +20,8 @@ func TestTalkTargetEventParsing(t *testing.T) {
 	}
 	if jsn.Lat != 45.521525 {
 		t.Errorf("Latitude incorrect(45.521525): %#v", jsn)
+	}
+	if jsn.Localtime != "Tuesday" {
+		t.Errorf("Localtime incorrect(Tuesday): %#v", jsn)
 	}
 }

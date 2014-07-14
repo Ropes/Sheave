@@ -1,4 +1,4 @@
-package sheave
+package main
 
 import (
 	"fmt"
@@ -9,16 +9,16 @@ import (
 )
 
 type Events struct {
-	hacknight interface{}
-	talknight interface{}
+	hacknight Event
+	talknight Event
 }
 
 var events Events
 
 func LoadCalendar() {
-	c := make(chan interface{})
-	go parseCalendar("hacknights.json", c)
-	go parseCalendar("talknights.json", c)
+	c := make(chan Event)
+	go parseEvent("hacknights.json", c)
+	go parseEvent("talknights.json", c)
 
 	events.hacknight, events.talknight = <-c, <-c
 }
@@ -30,6 +30,7 @@ func GopherHandler(event *irc.Event) {
 
 	if channel == "#pdxgo" || channel == "#pdxgotest" {
 		if len(event.Arguments) >= 2 {
+			LoadCalendar()
 			cmd := strings.Trim(event.Arguments[1], " ")
 			log.Printf("Event: %#v\n", event)
 			user := PrivMsgUser(event)
@@ -41,7 +42,14 @@ func GopherHandler(event *irc.Event) {
 				client.Privmsg(channel, msg)
 			case "!nexttalk":
 				log.Printf("Channel: %+v", channel)
-				msg := fmt.Sprintf("%s: Next Talk night: %s", user)
+
+				msg := fmt.Sprintf("%s: Next Talk night: %s", user, events.talknight.Localtime)
+				client.Privmsg(channel, msg)
+
+				msg = fmt.Sprintf(">>> %s @ %s <<<", events.talknight.Topic, events.talknight.Location)
+				client.Privmsg(channel, msg)
+
+				msg = fmt.Sprintf("Info: %s", events.talknight.Link)
 				client.Privmsg(channel, msg)
 			case "!nexthack":
 				log.Printf("Channel: %+v", channel)
@@ -82,18 +90,6 @@ func IRCConnect(ircconfig IRCConfig) {
 }
 
 func main() {
-	/*
-		hacknight, err := parseCalendar("hacknights.json")
-		if err != nil {
-			panic(fmt.Sprintf("Error parsing calendar: %v", err))
-		}
-		talknight, err := parseCalendar("talknights.json")
-		if err != nil {
-			panic(fmt.Sprintf("Error parsing calendar: %v", err))
-		}
-	*/
-	//ircconfig := parseConfig("conf.json")
-	LoadCalendar()
-	fmt.Printf("events:\n%#v\n", events.talknight)
-	//IRCConnect(ircconfig)
+	ircconfig := parseConfig("conf.json")
+	IRCConnect(ircconfig)
 }

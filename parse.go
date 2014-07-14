@@ -1,4 +1,4 @@
-package sheave
+package main
 
 import (
 	"encoding/json"
@@ -26,10 +26,6 @@ func parseConfig(path string) IRCConfig {
 		fmt.Println(err)
 	}
 	return conf
-}
-
-type Hacknights struct {
-	data map[string]interface{}
 }
 
 type Event struct {

@@ -23,25 +23,38 @@ func LoadCalendar() {
 	events.hacknight, events.talknight = <-c, <-c
 }
 
+func EventResponse(e Event, user string, etype string) []string {
+	resp := make([]string, 0)
+	msg := fmt.Sprintf("%s: Next %s: %s", user, etype, e.Localtime)
+	resp = append(resp, msg)
+
+	msg = fmt.Sprintf(">>> %s @ %s <<<", e.Topic, e.Location)
+	resp = append(resp, msg)
+
+	msg = fmt.Sprintf("Info: %s", e.Link)
+	resp = append(resp, msg)
+	return resp
+}
+
 //GopherHandler which responds with the next meeting type for the !nextmeetup command
 func GopherHandler(event *irc.Event) {
 	client := event.Client
 	channel := event.Arguments[0]
 
-	if channel == "#pdxgo" || channel == "#pdxgotest" {
+	if channel == "#pdxgo" || channel == "#pdxgotest" || channel == "#pdxbots" {
 		if len(event.Arguments) >= 2 {
 			LoadCalendar()
 			cmd := strings.Trim(event.Arguments[1], " ")
 			log.Printf("Event: %#v\n", event)
 			user := PrivMsgUser(event)
 			//log.Printf("Message:'%#v'\n", event.Arguments)
+			log.Printf("Channel: %+v", channel)
 			switch cmd {
 			case "!nextmeetup":
-				log.Printf("Channel: %+v", channel)
 				msg := fmt.Sprintf("%s: %s", user, "meetingtime!")
 				client.Privmsg(channel, msg)
+
 			case "!nexttalk":
-				log.Printf("Channel: %+v", channel)
 
 				msg := fmt.Sprintf("%s: Next Talk night: %s", user, events.talknight.Localtime)
 				client.Privmsg(channel, msg)
@@ -51,12 +64,18 @@ func GopherHandler(event *irc.Event) {
 
 				msg = fmt.Sprintf("Info: %s", events.talknight.Link)
 				client.Privmsg(channel, msg)
+
 			case "!nexthack":
-				log.Printf("Channel: %+v", channel)
-				msg := fmt.Sprintf("%s: %s", user, "meetingtime!")
+				msg := fmt.Sprintf("%s: Next Hack Night: %s", user, events.hacknight.Localtime)
+				client.Privmsg(channel, msg)
+
+				msg = fmt.Sprintf(">>> %s @ %s <<<", events.hacknight.Topic, events.hacknight.Location)
+				client.Privmsg(channel, msg)
+
+				msg = fmt.Sprintf("Info: %s", events.hacknight.Link)
 				client.Privmsg(channel, msg)
 			case "!sheavehelp":
-				client.Privmsg(channel, "Help msg")
+				client.Privmsg(channel, "Sheavebot Cmds: !nextmeetup !nexttalk !nexthack")
 
 			}
 		}

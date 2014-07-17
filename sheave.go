@@ -8,6 +8,7 @@ import (
 	"github.com/mikeclarke/go-irclib"
 )
 
+//Events contain both hack/talk night Event structs for global access
 type Events struct {
 	hacknight Event
 	talknight Event
@@ -15,6 +16,8 @@ type Events struct {
 
 var events Events
 
+//LoadCalendar reads in the Events from their JSON definitions and
+//applies it to global 'events' variable for access
 func LoadCalendar() {
 	c := make(chan Event)
 	go parseEvent("hacknights.json", c)
@@ -26,7 +29,7 @@ func LoadCalendar() {
 //EventResponse creates a []string of useful information of an Event(struct)
 //which will be sent to inquiring user.
 func EventResponse(e Event, user string, etype string) []string {
-	resp := make([]string, 0)
+	var resp []string
 	msg := fmt.Sprintf("%s: Next %s: %s", user, etype, e.Localtime)
 	resp = append(resp, msg)
 

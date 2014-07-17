@@ -84,6 +84,7 @@ func PrivMsgUser(event *irc.Event) string {
 	return split[0]
 }
 
+//IRCConnect initializes and runs the irc connection and adds the GopherHandler to its event loop for parsing messages
 func IRCConnect(ircconfig IRCConfig) {
 	ircc := irc.New(ircconfig.UserName, ircconfig.UserName)
 	ircc.Server = ircconfig.Server

@@ -1,11 +1,13 @@
 package main
 
+//"github.com/thoj/go-ircevent"
 import (
 	"fmt"
 	"log"
 	"strings"
 
 	"github.com/mikeclarke/go-irclib"
+	"github.com/ropes/anagrams"
 )
 
 //Events contain both hack/talk night Event structs for global access
@@ -108,6 +110,17 @@ func IRCConnect(ircconfig IRCConfig) {
 }
 
 func main() {
+	words, err := anagrams.ReadSystemWords()
+	if err != nil {
+		fmt.Println("No error reading word list")
+	}
+	anagrammap := anagrams.AnagramList(words)
+	AM := &anagrams.AnagramMap{Mapping: anagrammap}
+
+	word := "god"
+	ana := AM.AnagramOfWord(word)
+	fmt.Println(ana)
+
 	ircconfig := parseConfig("conf.json")
 	IRCConnect(ircconfig)
 }

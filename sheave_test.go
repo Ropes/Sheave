@@ -44,7 +44,7 @@ func TestLocalLoadCalendarParsing(t *testing.T) {
 }
 
 func TestEventResponse(t *testing.T) {
-	c := make(chan Event)
+	c := make(chan CalEvent)
 	go parseEvent("testing/resources/talking.json", c)
 	jsn := <-c
 
@@ -61,7 +61,7 @@ func TestEventResponse(t *testing.T) {
 }
 
 func TestTalkTargetEventParsing(t *testing.T) {
-	c := make(chan Event)
+	c := make(chan CalEvent)
 	go parseEvent("testing/resources/talking.json", c)
 	jsn := <-c
 	//fmt.Printf("%#v\n", jsn)

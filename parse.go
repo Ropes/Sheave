@@ -28,7 +28,7 @@ func parseConfig(path string) IRCConfig {
 	return conf
 }
 
-type Event struct {
+type CalEvent struct {
 	Time        time.Time
 	Localtime   string
 	Location    string
@@ -41,9 +41,9 @@ type Event struct {
 	Notes       string
 }
 
-func parseEvent(path string, e chan Event) {
+func parseEvent(path string, e chan CalEvent) {
 	contents, err := ioutil.ReadFile(path)
-	var cal Event
+	var cal CalEvent
 	if err != nil {
 		fmt.Println(err)
 		e <- cal

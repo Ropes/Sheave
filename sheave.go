@@ -1,19 +1,16 @@
 package main
 
-//"github.com/thoj/go-ircevent"
 import (
 	"fmt"
-	"log"
-	"strings"
 
-	"github.com/mikeclarke/go-irclib"
 	"github.com/ropes/anagrams"
+	"github.com/thoj/go-ircevent"
 )
 
 //Events contain both hack/talk night Event structs for global access
 type Events struct {
-	hacknight Event
-	talknight Event
+	hacknight CalEvent
+	talknight CalEvent
 }
 
 var events Events
@@ -21,7 +18,7 @@ var events Events
 //LoadCalendar reads in the Events from their JSON definitions and
 //applies it to global 'events' variable for access
 func LoadCalendar() {
-	c := make(chan Event)
+	c := make(chan CalEvent)
 	go parseEvent("hacknights.json", c)
 	go parseEvent("talknights.json", c)
 
@@ -30,7 +27,7 @@ func LoadCalendar() {
 
 //EventResponse creates a []string of useful information of an Event(struct)
 //which will be sent to inquiring user.
-func EventResponse(e Event, user string, etype string) []string {
+func EventResponse(e CalEvent, user string, etype string) []string {
 	var resp []string
 	msg := fmt.Sprintf("%s: Next %s: %s", user, etype, e.Localtime)
 	resp = append(resp, msg)
@@ -43,6 +40,7 @@ func EventResponse(e Event, user string, etype string) []string {
 	return resp
 }
 
+/*
 //SendPrivMsgs broadcasts PRIVMSGs via the given client and channel.
 //msgs []string; are the messages to be sent
 func SendPrivMsgs(event *irc.Event, channel string, msgs []string) {
@@ -88,25 +86,39 @@ func PrivMsgUser(event *irc.Event) string {
 	split := strings.Split(prefix, "!")
 	return split[0]
 }
+*/
 
 //IRCConnect initializes and runs the irc connection and adds the GopherHandler to its event loop for parsing messages
 func IRCConnect(ircconfig IRCConfig) {
-	ircc := irc.New(ircconfig.UserName, ircconfig.UserName)
-	ircc.Server = ircconfig.Server
-	ircc.RealName = ircconfig.RealName
-	ircc.Password = ircconfig.Passwd
+	/*
+		ircc := irc.New(ircconfig.UserName, ircconfig.UserName)
+		ircc.Server = ircconfig.Server
+		ircc.RealName = ircconfig.RealName
+		ircc.Password = ircconfig.Passwd
 
-	connErr := ircc.Connect(ircc.Server)
-	if connErr != nil {
-		fmt.Println("Connection Error: \n", connErr)
-	}
+		connErr := ircc.Connect(ircc.Server)
+		if connErr != nil {
+			fmt.Println("Connection Error: \n", connErr)
+		}
 
-	for _, v := range ircconfig.Channels {
-		fmt.Println("Joining: ", v)
-		ircc.Join(v)
+		for _, v := range ircconfig.Channels {
+			fmt.Println("Joining: ", v)
+			ircc.Join(v)
+		}
+		ircc.AddHandler(GopherHandler)
+		ircc.Run()
+	*/
+	con := irc.IRC(ircconfig.UserName, ircconfig.UserName)
+	con.Password = ircconfig.Passwd
+
+	err := con.Connect(ircconfig.Server)
+	if err != nil {
+		panic(fmt.Sprintf("Error connecting to server: %s", ircconfig.Server))
 	}
-	ircc.AddHandler(GopherHandler)
-	ircc.Run()
+	con.AddCallback("001", func(e *irc.Event) { con.Join("#pdxbots") })
+	con.AddCallback("JOIN", func(e *irc.Event) { con.Privmsg("#pdxbots", "hihi!") })
+	con.AddCallback("PRIVMSG", func(e *irc.Event) { con.Privmsgf("#pdxbots", "Repeat: %s\n\r", e.Message()) })
+	con.Loop()
 }
 
 func main() {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/ropes/anagrams"
 	"github.com/thoj/go-ircevent"
@@ -42,46 +43,28 @@ func EventResponse(e CalEvent, user string, etype string) []string {
 	return resp
 }
 
-/*
-//SendPrivMsgs broadcasts PRIVMSGs via the given client and channel.
-//msgs []string; are the messages to be sent
-func SendPrivMsgs(event *irc.Event, channel string, msgs []string) {
-	client := event.Client
-	for _, msg := range msgs {
-		client.Privmsg(channel, msg)
-	}
-}
-
 //GopherHandler which responds with the next meeting type for the !nextmeetup command
-func GopherHandler(event *irc.Event) {
-	client := event.Client
-	channel := event.Arguments[0]
+func GopherHandler(e *irc.Event, con *irc.Connection) {
+	channel := e.Arguments[0]
 
-	if channel == "#pdxgo" || channel == "#pdxgotest" || channel == "#pdxbots" {
-		if len(event.Arguments) >= 2 {
-			LoadCalendar()
-			cmd := strings.Trim(event.Arguments[1], " ")
-			log.Printf("Event: %#v\n", event)
-			user := PrivMsgUser(event)
-			//log.Printf("Message:'%#v'\n", event.Arguments)
-			log.Printf("Channel: %+v", channel)
-			switch cmd {
-			case "!nextmeetup":
-				msg := fmt.Sprintf("%s: %s", user, " TODO: meetingtime!")
-				client.Privmsg(channel, msg)
-			case "!nexttalk":
-				msgs := EventResponse(events.talknight, user, "Talk Night")
-				SendPrivMsgs(event, channel, msgs)
-			case "!nexthack":
-				msgs := EventResponse(events.hacknight, user, "Hack Night")
-				SendPrivMsgs(event, channel, msgs)
-			case "!sheavehelp":
-				client.Privmsg(channel, "Sheavebot Cmds: !nextmeetup !nexttalk !nexthack")
-			}
-		}
+	LoadCalendar()
+	cmd := strings.Trim(e.Arguments[1], " ")
+	switch cmd {
+	case "!nextmeetup":
+		msg := fmt.Sprintf("%s: %s", user, " TODO: meetingtime!")
+		client.Privmsg(channel, msg)
+	case "!nexttalk":
+		msgs := EventResponse(events.talknight, user, "Talk Night")
+		SendPrivMsgs(event, channel, msgs)
+	case "!nexthack":
+		msgs := EventResponse(events.hacknight, user, "Hack Night")
+		SendPrivMsgs(event, channel, msgs)
+	case "!sheavehelp":
+		client.Privmsg(channel, "Sheavebot Cmds: !nextmeetup !nexttalk !nexthack")
 	}
 }
 
+/*
 //PrivMsgUser returns the user's name who sent a message via the Event object
 func PrivMsgUser(event *irc.Event) string {
 	prefix := event.Prefix

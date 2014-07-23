@@ -54,11 +54,8 @@ func SendPrivMsgs(con *irc.Connection, channel string, msgs []string) {
 func GopherHandler(e *irc.Event, con *irc.Connection) {
 	channel := e.Arguments[0]
 
-	LoadCalendar()
-	fmt.Printf("%#v\n", e)
-	if len(e.Arguments) >= 2 {
-		cmd := strings.Trim(e.Arguments[1], " ")
-		fmt.Println(cmd)
+	if cmd := strings.Trim(e.Arguments[1], " "); cmd[0] == '!' && len(e.Arguments) >= 2 {
+		LoadCalendar()
 		switch cmd {
 		case "!nextmeetup":
 			msg := fmt.Sprintf("%s: %s", e.Nick, " TODO: meetingtime!")
@@ -74,15 +71,6 @@ func GopherHandler(e *irc.Event, con *irc.Connection) {
 		}
 	}
 }
-
-/*
-//PrivMsgUser returns the user's name who sent a message via the Event object
-func PrivMsgUser(event *irc.Event) string {
-	prefix := event.Prefix
-	split := strings.Split(prefix, "!")
-	return split[0]
-}
-*/
 
 //IRCConnect initializes and runs the irc connection and adds the GopherHandler to its event loop for parsing messages
 func IRCConnect(ircconfig IRCConfig) {

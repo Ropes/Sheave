@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/ropes/anagrams"
 	"github.com/thoj/go-ircevent"
@@ -90,34 +92,27 @@ func PrivMsgUser(event *irc.Event) string {
 
 //IRCConnect initializes and runs the irc connection and adds the GopherHandler to its event loop for parsing messages
 func IRCConnect(ircconfig IRCConfig) {
-	/*
-		ircc := irc.New(ircconfig.UserName, ircconfig.UserName)
-		ircc.Server = ircconfig.Server
-		ircc.RealName = ircconfig.RealName
-		ircc.Password = ircconfig.Passwd
-
-		connErr := ircc.Connect(ircc.Server)
-		if connErr != nil {
-			fmt.Println("Connection Error: \n", connErr)
-		}
-
-		for _, v := range ircconfig.Channels {
-			fmt.Println("Joining: ", v)
-			ircc.Join(v)
-		}
-		ircc.AddHandler(GopherHandler)
-		ircc.Run()
-	*/
 	con := irc.IRC(ircconfig.UserName, ircconfig.UserName)
 	con.Password = ircconfig.Passwd
 
-	err := con.Connect(ircconfig.Server)
+	file, err := os.OpenFile("irc.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to open log file:%s", err))
+	}
+	log := log.New(file, "sheave:", log.Ldate|log.Ltime|log.Lshortfile)
+
+	con.Connect(ircconfig.Server)
 	if err != nil {
 		panic(fmt.Sprintf("Error connecting to server: %s", ircconfig.Server))
 	}
-	con.AddCallback("001", func(e *irc.Event) { con.Join("#pdxbots") })
-	con.AddCallback("JOIN", func(e *irc.Event) { con.Privmsg("#pdxbots", "hihi!") })
-	con.AddCallback("PRIVMSG", func(e *irc.Event) { con.Privmsgf("#pdxbots", "Repeat: %s\n\r", e.Message()) })
+	con.AddCallback("001", func(e *irc.Event) {
+		con.Join("#pdxbots")
+		con.Join("#pdxgo")
+	})
+	//con.AddCallback("JOIN", func(e *irc.Event) { con.Privmsg("#pdxbots", "hihi!") })
+	con.AddCallback("PRIVMSG", func(e *irc.Event) {
+		log.Printf("%s %s: %s", e.Arguments[0], e.Nick, e.Arguments[1])
+	})
 	con.Loop()
 }
 

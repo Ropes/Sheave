@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ropes/anagrams"
 	"github.com/thoj/go-ircevent"
 )
 
@@ -56,19 +55,23 @@ func GopherHandler(e *irc.Event, con *irc.Connection) {
 	channel := e.Arguments[0]
 
 	LoadCalendar()
-	cmd := strings.Trim(e.Arguments[1], " ")
-	switch cmd {
-	case "!nextmeetup":
-		msg := fmt.Sprintf("%s: %s", e.Nick, " TODO: meetingtime!")
-		con.Privmsg(channel, msg)
-	case "!nexttalk":
-		msgs := EventResponse(events.talknight, e.Nick, "Talk Night")
-		SendPrivMsgs(con, channel, msgs)
-	case "!nexthack":
-		msgs := EventResponse(events.hacknight, e.Nick, "Hack Night")
-		SendPrivMsgs(con, channel, msgs)
-	case "!sheavehelp":
-		con.Privmsg(channel, "Sheavebot Cmds: !nextmeetup !nexttalk !nexthack")
+	fmt.Printf("%#v\n", e)
+	if len(e.Arguments) >= 2 {
+		cmd := strings.Trim(e.Arguments[1], " ")
+		fmt.Println(cmd)
+		switch cmd {
+		case "!nextmeetup":
+			msg := fmt.Sprintf("%s: %s", e.Nick, " TODO: meetingtime!")
+			con.Privmsg(channel, msg)
+		case "!nexttalk":
+			msgs := EventResponse(events.talknight, e.Nick, "Talk Night")
+			SendPrivMsgs(con, channel, msgs)
+		case "!nexthack":
+			msgs := EventResponse(events.hacknight, e.Nick, "Hack Night")
+			SendPrivMsgs(con, channel, msgs)
+		case "!sheavehelp":
+			con.Privmsg(channel, "Sheavebot Cmds: !nextmeetup !nexttalk !nexthack")
+		}
 	}
 }
 
@@ -100,7 +103,9 @@ func IRCConnect(ircconfig IRCConfig) {
 		con.Join("#pdxbots")
 		con.Join("#pdxgo")
 	})
-	//con.AddCallback("JOIN", func(e *irc.Event) { con.Privmsg("#pdxbots", "hihi!") })
+	con.AddCallback("PRIVMSG", func(e *irc.Event) {
+		GopherHandler(e, con)
+	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
 		log.Printf("%s %s: %s", e.Arguments[0], e.Nick, e.Arguments[1])
 	})
@@ -108,16 +113,18 @@ func IRCConnect(ircconfig IRCConfig) {
 }
 
 func main() {
-	words, err := anagrams.ReadSystemWords()
-	if err != nil {
-		fmt.Println("No error reading word list")
-	}
-	anagrammap := anagrams.AnagramList(words)
-	AM := &anagrams.AnagramMap{Mapping: anagrammap}
+	/*
+		words, err := anagrams.ReadSystemWords()
+		if err != nil {
+			fmt.Println("No error reading word list")
+		}
+		anagrammap := anagrams.AnagramList(words)
+		AM := &anagrams.AnagramMap{Mapping: anagrammap}
 
-	word := "god"
-	ana := AM.AnagramOfWord(word)
-	fmt.Println(ana)
+		word := "god"
+		ana := AM.AnagramOfWord(word)
+		fmt.Println(ana)
+	*/
 
 	ircconfig := parseConfig("conf.json")
 	IRCConnect(ircconfig)

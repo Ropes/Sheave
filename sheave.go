@@ -43,6 +43,14 @@ func EventResponse(e CalEvent, user string, etype string) []string {
 	return resp
 }
 
+//SendPrivMsgs broadcasts PRIVMSGs via the given client and channel.
+//msgs []string; are the messages to be sent
+func SendPrivMsgs(con *irc.Connection, channel string, msgs []string) {
+	for _, msg := range msgs {
+		con.Privmsg(channel, msg)
+	}
+}
+
 //GopherHandler which responds with the next meeting type for the !nextmeetup command
 func GopherHandler(e *irc.Event, con *irc.Connection) {
 	channel := e.Arguments[0]
@@ -51,16 +59,16 @@ func GopherHandler(e *irc.Event, con *irc.Connection) {
 	cmd := strings.Trim(e.Arguments[1], " ")
 	switch cmd {
 	case "!nextmeetup":
-		msg := fmt.Sprintf("%s: %s", user, " TODO: meetingtime!")
-		client.Privmsg(channel, msg)
+		msg := fmt.Sprintf("%s: %s", e.Nick, " TODO: meetingtime!")
+		con.Privmsg(channel, msg)
 	case "!nexttalk":
-		msgs := EventResponse(events.talknight, user, "Talk Night")
-		SendPrivMsgs(event, channel, msgs)
+		msgs := EventResponse(events.talknight, e.Nick, "Talk Night")
+		SendPrivMsgs(con, channel, msgs)
 	case "!nexthack":
-		msgs := EventResponse(events.hacknight, user, "Hack Night")
-		SendPrivMsgs(event, channel, msgs)
+		msgs := EventResponse(events.hacknight, e.Nick, "Hack Night")
+		SendPrivMsgs(con, channel, msgs)
 	case "!sheavehelp":
-		client.Privmsg(channel, "Sheavebot Cmds: !nextmeetup !nexttalk !nexthack")
+		con.Privmsg(channel, "Sheavebot Cmds: !nextmeetup !nexttalk !nexthack")
 	}
 }
 

@@ -1,4 +1,4 @@
-package main
+package bot
 
 import (
 	"fmt"
@@ -7,13 +7,14 @@ import (
 	"strings"
 
 	"github.com/ropes/anagrams"
+	"github.com/ropes/sheave/parse"
 	"github.com/thoj/go-ircevent"
 )
 
 //Events contain both hack/talk night Event structs for global access
 type Events struct {
-	hacknight CalEvent
-	talknight CalEvent
+	hacknight parse.CalEvent
+	talknight parse.CalEvent
 }
 
 var events Events
@@ -23,16 +24,16 @@ var AM *anagrams.AnagramMap
 //LoadCalendar reads in the Events from their JSON definitions and
 //applies it to global 'events' variable for access
 func LoadCalendar() {
-	c := make(chan CalEvent)
-	go parseEvent("hacknights.json", c)
-	go parseEvent("talknights.json", c)
+	c := make(chan parse.CalEvent)
+	go parse.ParseEvent("hacknights.json", c)
+	go parse.ParseEvent("talknights.json", c)
 
 	events.hacknight, events.talknight = <-c, <-c
 }
 
 //EventResponse creates a []string of useful information of an Event(struct)
 //which will be sent to inquiring user.
-func EventResponse(e CalEvent, user string, etype string) []string {
+func EventResponse(e parse.CalEvent, user string, etype string) []string {
 	var resp []string
 	msg := fmt.Sprintf("%s: Next %s: %s", user, etype, e.Localtime)
 	resp = append(resp, msg)
@@ -89,7 +90,7 @@ func AnagramHandler(e *irc.Event, con *irc.Connection) {
 }
 
 //IRCConnect initializes and runs the irc connection and adds the GopherHandler to its event loop for parsing messages
-func IRCConnect(ircconfig IRCConfig) {
+func IRCConnect(ircconfig parse.IRCConfig) {
 	con := irc.IRC(ircconfig.UserName, ircconfig.UserName)
 	con.Password = ircconfig.Passwd
 
@@ -118,16 +119,4 @@ func IRCConnect(ircconfig IRCConfig) {
 		log.Printf("%s %s: %s", e.Arguments[0], e.Nick, e.Arguments[1])
 	})
 	con.Loop()
-}
-
-func main() {
-	words, err := anagrams.ReadSystemWords()
-	if err != nil {
-		fmt.Println("No error reading word list")
-	}
-	anagrammap := anagrams.AnagramList(words)
-	AM = &anagrams.AnagramMap{Mapping: anagrammap}
-
-	ircconfig := parseConfig("conf.json")
-	IRCConnect(ircconfig)
 }

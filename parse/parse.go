@@ -1,4 +1,4 @@
-package main
+package parse
 
 import (
 	"encoding/json"
@@ -15,7 +15,7 @@ type IRCConfig struct {
 	Channels []string
 }
 
-func parseConfig(path string) IRCConfig {
+func ParseConfig(path string) IRCConfig {
 	contents, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println(err)
@@ -41,7 +41,7 @@ type CalEvent struct {
 	Notes       string
 }
 
-func parseEvent(path string, e chan CalEvent) {
+func ParseEvent(path string, e chan CalEvent) {
 	contents, err := ioutil.ReadFile(path)
 	var cal CalEvent
 	if err != nil {
@@ -56,7 +56,7 @@ func parseEvent(path string, e chan CalEvent) {
 	e <- cal
 }
 
-func parseCalendar(path string, e chan interface{}) {
+func ParseCalendar(path string, e chan interface{}) {
 	contents, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println(err)

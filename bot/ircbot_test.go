@@ -6,6 +6,9 @@ import (
 	"reflect"
 	"runtime"
 	"testing"
+
+	"github.com/ropes/sheave/bot"
+	"github.com/ropes/sheave/parse"
 )
 
 // assert fails the test if the condition is false.
@@ -36,16 +39,16 @@ func equals(tb testing.TB, exp, act interface{}) {
 }
 
 func TestLocalLoadCalendarParsing(t *testing.T) {
-	LoadCalendar()
+	bot.LoadCalendar()
 	//fmt.Println(events.hacknight.Time.Unix())
-	if events.talknight.Time.Unix() == -62135596800 || events.hacknight.Time.Unix() == -62135596800 {
+	if bot.events.talknight.Time.Unix() == -62135596800 || bot.events.hacknight.Time.Unix() == -62135596800 {
 		t.Errorf("Events nil!: %#v", events)
 	}
 }
 
 func TestEventResponse(t *testing.T) {
-	c := make(chan CalEvent)
-	go parseEvent("testing/resources/talking.json", c)
+	c := make(chan parse.CalEvent)
+	go parse.ParseEvent("testing/resources/talking.json", c)
 	jsn := <-c
 
 	out := EventResponse(jsn, "ropes", "Talk Night")
@@ -61,8 +64,8 @@ func TestEventResponse(t *testing.T) {
 }
 
 func TestTalkTargetEventParsing(t *testing.T) {
-	c := make(chan CalEvent)
-	go parseEvent("testing/resources/talking.json", c)
+	c := make(chan parse.CalEvent)
+	go parse.ParseEvent("testing/resources/talking.json", c)
 	jsn := <-c
 	//fmt.Printf("%#v\n", jsn)
 	if jsn.Location != "ESRI" {

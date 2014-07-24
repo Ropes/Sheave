@@ -1,5 +1,6 @@
 {
-        "Time": "2014-07-10T01:30:00.000Z",
+        "Time": "2014-08-13T01:30:00.000Z",
+        "Localtime": "Wednesday, August 13, 2014",
         "Location": "Urban Airship Lounge",
         "Lat": 45.525393,
         "Lon": -122.685846,
@@ -7,15 +8,13 @@
         "Link": "https://t.co/m4nlm1OXzE",
         "Description": [
             "Greetings Portland Gophers,", 
-        "After speaking with people in #pdxgo irc, there seemed to be decent interest for a hack night, so I worked on finding a space. After weighing location options(and amount of effort to setup vs unknown interest level), I've secured a collocation with the PDXPython hack night(2014/7/9 6:30PM) which takes place on the second Wednesday of the month in Urban Airship's comfy upstairs lounge.  New venues have opened up since I secured the space, but at least initially to gauge interest I think collocation works best.",
             
-            "So bring your projects, interests, questions and hang out with fellow Gophers here in town! All skill levels welcome!! If there's a significant number of attendees, I'll work on securing our own dedicated space for next time.  A presentation night is also in the works, probably end of July-early August, details might be solidified by time of the hack night.",
+            "Bring your projects, interests, questions and hang out with other Go-curious here in town! All skill levels welcome!! If there's a significant number of attendees, I'll work on securing our own dedicated space for next time.  A presentation night is also in the works, probably end of July-early August, details might be solidified by time of the hack night.",
             
-            "For logistics, generally from observations at previous Python Hack nights, people congregate around the central table and slowly extend as seats fill, but generally there's plenty of extra space. I'd like to propose Go people to sit in the couch circles towards the end of the room.  I'll try to have some signs by then, look for something possibly like this:",
+            "For logistics, generally from observations at previous Python Hack nights, people congregate around the central table and slowly extend as seats fill, but generally there's plenty of extra space. I'd like to propose Go people to sit in the couch circles towards the end of the room.  I a Gopher plushie and some signage to home in peopel.",
             
-            "Having event numbers ahead of time helps out with organizing(chairs, power strips, etc) so I'd like to ask people to RSVP in some manner; preferably through their Meetup Event.  If you really REALLY don't want to have to bother joining PDXPython, just ping me and I'll add a +1. We now have our own Meetup Group for PDXGo(thanks to Lytics for covering the bill), and maybe we'll start using it for hack/learning nights, but for simplicity this time let's just add our headcount to the Python Meetup event page. Or if we do make an event please RSVP both(you can guess why this gets messy).  I'll get a solid head count of Gophers by who shows up the night of for interest quantification.  As for etiquette, it's necessary to note that this is PDXPython's hack night, so please respect their Code of Conduct(Be nice, don't be a jerk) and everything will be great. :)",
+            "Having event numbers ahead of time helps out with organizing(chairs, power strips, etc) so I'd like to ask people to RSVP in some manner; preferably through their Meetup Event. I'll signal the PDXPython group of our numbers prior the event. As for etiquette, it's necessary to note that this is PDXPython's hack night, so please respect their Code of Conduct(Be nice, don't be a jerk) and everything will be great. :)",
             
-             "Hopefully this will be a nice primer for getting the group moving again!",
              
              "Cheers, Josh Roppo",
              

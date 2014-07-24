@@ -75,6 +75,19 @@ func GopherHandler(e *irc.Event, con *irc.Connection) {
 	}
 }
 
+//AnagramHandler will record previous messages in a pool of strings
+//
+func AnagramHandler(e *irc.Event, con *irc.Connection) {
+	channel := e.Arguments[0]
+	if cmd := strings.Trim(e.Arguments[1], " "); cmd[0] == '!' && len(e.Arguments) >= 2 {
+		if cmd == "!anagram" {
+			x := []string{"stop", "trust"}
+			s := AM.AnagramSentence(x)
+			con.Privmsg(channel, strings.Join(s, " "))
+		}
+	}
+}
+
 //IRCConnect initializes and runs the irc connection and adds the GopherHandler to its event loop for parsing messages
 func IRCConnect(ircconfig IRCConfig) {
 	con := irc.IRC(ircconfig.UserName, ircconfig.UserName)
@@ -97,6 +110,9 @@ func IRCConnect(ircconfig IRCConfig) {
 	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
 		GopherHandler(e, con)
+	})
+	con.AddCallback("PRIVMSG", func(e *irc.Event) {
+		AnagramHandler(e, con)
 	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
 		log.Printf("%s %s: %s", e.Arguments[0], e.Nick, e.Arguments[1])

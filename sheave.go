@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ropes/anagrams"
 	"github.com/thoj/go-ircevent"
 )
 
@@ -16,6 +17,8 @@ type Events struct {
 }
 
 var events Events
+
+var AM *anagrams.AnagramMap
 
 //LoadCalendar reads in the Events from their JSON definitions and
 //applies it to global 'events' variable for access
@@ -90,6 +93,7 @@ func IRCConnect(ircconfig IRCConfig) {
 	con.AddCallback("001", func(e *irc.Event) {
 		con.Join("#pdxbots")
 		con.Join("#pdxgo")
+		con.Join("#pdxtech")
 	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
 		GopherHandler(e, con)
@@ -101,18 +105,12 @@ func IRCConnect(ircconfig IRCConfig) {
 }
 
 func main() {
-	/*
-		words, err := anagrams.ReadSystemWords()
-		if err != nil {
-			fmt.Println("No error reading word list")
-		}
-		anagrammap := anagrams.AnagramList(words)
-		AM := &anagrams.AnagramMap{Mapping: anagrammap}
-
-		word := "god"
-		ana := AM.AnagramOfWord(word)
-		fmt.Println(ana)
-	*/
+	words, err := anagrams.ReadSystemWords()
+	if err != nil {
+		fmt.Println("No error reading word list")
+	}
+	anagrammap := anagrams.AnagramList(words)
+	AM = &anagrams.AnagramMap{Mapping: anagrammap}
 
 	ircconfig := parseConfig("conf.json")
 	IRCConnect(ircconfig)

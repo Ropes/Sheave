@@ -38,11 +38,28 @@ func equals(tb testing.TB, exp, act interface{}) {
 	}
 }
 
+//Events contain both hack/talk night Event structs for global access
+type Events struct {
+	hacknight parse.CalEvent
+	talknight parse.CalEvent
+}
+
+var CalEvents Events
+
+func loadCalendar(hackPath, talkPath string) {
+	c := make(chan parse.CalEvent)
+	go parse.ParseEvent(hackPath, c)
+	go parse.ParseEvent(talkPath, c)
+
+	CalEvents.hacknight, CalEvents.talknight = <-c, <-c
+}
+
 func TestLocalLoadCalendarParsing(t *testing.T) {
-	bot.LoadCalendar()
-	//fmt.Println(events.hacknight.Time.Unix())
-	if bot.events.talknight.Time.Unix() == -62135596800 || bot.events.hacknight.Time.Unix() == -62135596800 {
-		t.Errorf("Events nil!: %#v", events)
+
+	//bot.LoadCalendar()
+	loadCalendar("../hacknights.json", "../talknights.json")
+	if CalEvents.talknight.Time.Unix() == -62135596800 || CalEvents.hacknight.Time.Unix() == -62135596800 {
+		t.Errorf("Events nil!: %#v", CalEvents)
 	}
 }
 
@@ -51,7 +68,7 @@ func TestEventResponse(t *testing.T) {
 	go parse.ParseEvent("testing/resources/talking.json", c)
 	jsn := <-c
 
-	out := EventResponse(jsn, "ropes", "Talk Night")
+	out := bot.EventResponse(jsn, "ropes", "Talk Night")
 	fmt.Printf("%#v\n", out)
 	if len(out) != 3 {
 		t.Errorf("Three strings not returned!")

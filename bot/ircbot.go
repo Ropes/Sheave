@@ -17,7 +17,7 @@ type Events struct {
 	talknight parse.CalEvent
 }
 
-var events Events
+var CalEvents Events
 
 var AM *anagrams.AnagramMap
 
@@ -28,7 +28,7 @@ func LoadCalendar() {
 	go parse.ParseEvent("hacknights.json", c)
 	go parse.ParseEvent("talknights.json", c)
 
-	events.hacknight, events.talknight = <-c, <-c
+	CalEvents.hacknight, CalEvents.talknight = <-c, <-c
 }
 
 //EventResponse creates a []string of useful information of an Event(struct)
@@ -65,10 +65,10 @@ func GopherHandler(e *irc.Event, con *irc.Connection) {
 			msg := fmt.Sprintf("%s: %s", e.Nick, " TODO: meetingtime!")
 			con.Privmsg(channel, msg)
 		case "!nexttalk":
-			msgs := EventResponse(events.talknight, e.Nick, "Talk Night")
+			msgs := EventResponse(CalEvents.talknight, e.Nick, "Talk Night")
 			SendPrivMsgs(con, channel, msgs)
 		case "!nexthack":
-			msgs := EventResponse(events.hacknight, e.Nick, "Hack Night")
+			msgs := EventResponse(CalEvents.hacknight, e.Nick, "Hack Night")
 			SendPrivMsgs(con, channel, msgs)
 		case "!sheavehelp":
 			con.Privmsg(channel, "Sheavebot Cmds: !nextmeetup !nexttalk !nexthack")

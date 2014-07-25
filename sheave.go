@@ -16,6 +16,6 @@ func main() {
 	anagrammap := anagrams.AnagramList(words)
 	bot.AM = &anagrams.AnagramMap{Mapping: anagrammap}
 
-	ircconfig := parse.ParseConfig("conf.json")
+	ircconfig := parse.ParseConfig("~/.config/sheave.json")
 	bot.IRCConnect(ircconfig)
 }

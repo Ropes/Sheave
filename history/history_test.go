@@ -29,3 +29,34 @@ func TestInit(t *testing.T) {
 		t.Errorf("First element incorrect: %#v", hh[0][0])
 	}
 }
+
+func TestPop(t *testing.T) {
+	x = []string{"x", "y", "z"}
+	a = []string{"a", "b", "c"}
+	//fmt.Println(x, a)
+
+	hh := make(HistoryHeap, 20)
+	heap.Push(&hh, x)
+	heap.Push(&hh, a)
+
+	poped := heap.Pop(&hh).([]string)
+	if poped[0] != "a" {
+		t.Errorf("Wrong element poped from stack: %#v\n", poped)
+	}
+}
+
+func TestRound(t *testing.T) {
+	x = []string{"x", "y", "z"}
+	a = []string{"a", "b", "c"}
+	c := []string{"d", "e", "f"}
+
+	hh := make(HistoryHeap, 2)
+	heap.Push(&hh, x)
+	heap.Push(&hh, a)
+	heap.Push(&hh, c)
+
+	if len(hh) > 2 {
+		t.Errorf("Heap grew beyond limit?")
+	}
+
+}

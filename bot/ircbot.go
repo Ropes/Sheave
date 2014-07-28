@@ -19,8 +19,10 @@ type Events struct {
 	talknight parse.CalEvent
 }
 
+//CalEvents variable holds talk/hack night calendar/event information
 var CalEvents Events
 
+//AM holds anagram maps keyed off of their characters sorted
 var AM *anagrams.AnagramMap
 
 //LoadCalendar reads in the Events from their JSON definitions and
@@ -78,6 +80,7 @@ func GopherHandler(e *irc.Event, con *irc.Connection) {
 	}
 }
 
+//ChannelHistory is a map of channel histories recording recent user messages
 var ChannelHistory map[string]history.HistoryHeap
 
 //ChannelHistorian takes channel messages and records them in a HistoryHeap to
@@ -88,8 +91,8 @@ func ChannelHistorian(e *irc.Event) {
 	msg := strings.Split(strings.Trim(e.Arguments[1], " "), " ")
 
 	hh := ChannelHistory[channel]
-	fmt.Printf("CH received: %#v\n", msg)
-	fmt.Printf("ChanHist: %#v\n", hh)
+	fmt.Printf("Msg received: %#v\n", msg)
+	fmt.Printf("ChanHist: %#v %#v\n", channel, hh)
 
 	heap.Push(&hh, msg)
 }
@@ -99,13 +102,12 @@ func parseMsg(s string) []string {
 	return strings.Split(strings.Trim(s, " "), " ")
 }
 
-//AnagramHandler will record previous messages in a queue of strings
-//
+//AnagramResponder returns previous user messages with text anagramed
 func AnagramResponder(e *irc.Event, con *irc.Connection) {
 	channel := e.Arguments[0]
 	if cmd := strings.Trim(e.Arguments[1], " "); cmd[0] == '!' && len(e.Arguments) >= 2 {
 		if cmd == "!anagram" {
-			x := []string{"stop", "trust"}
+			x := []string{"stop", "trust", "anagram"}
 			s := AM.AnagramSentence(x)
 			con.Privmsg(channel, strings.Join(s, " "))
 		}

@@ -1,5 +1,7 @@
 package history
 
+import "fmt"
+
 //HistoryHeap stuct represents indexed queue of message strings of limited number.
 //New strings replace old ones once limit is reached.
 type HistoryHeap struct {
@@ -18,12 +20,14 @@ func (hh HistoryHeap) Swap(i, j int) { hh.heap[i], hh.heap[j] = hh.heap[j], hh.h
 
 //Push adds string to the heap and removes an element if the limit has been reached.
 func (hh *HistoryHeap) Push(newString interface{}) {
+	//fmt.Println("\nPushing: ", newString)
 	if len(hh.heap) < hh.limit {
 		hh.heap = append(hh.heap, newString.([]string))
 	} else {
 		hh.Pop()
 		hh.heap = append(hh.heap, newString.([]string))
 	}
+	//hh.PrintDump()
 }
 
 //Pop removes and returns the oldest element in the heap
@@ -37,6 +41,13 @@ func (hh *HistoryHeap) Pop() interface{} {
 
 func (hh *HistoryHeap) Hist(i int) []string {
 	return hh.heap[i]
+}
+
+func (hh *HistoryHeap) PrintDump() {
+	fmt.Println("HistoryHeap, limit: ", hh.limit)
+	for i, v := range hh.heap {
+		fmt.Println(i, v)
+	}
 }
 
 //NewHistory initializes a new HistoryHeap given the limit variable

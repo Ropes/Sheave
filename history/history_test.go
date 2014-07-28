@@ -63,5 +63,19 @@ func TestRound(t *testing.T) {
 		t.Errorf("Heap grew beyond limit? \n%#v\n", hh)
 	}
 	//fmt.Println(hh) :D
+}
 
+func TestInsertion(t *testing.T) {
+	c := []string{"d", "e", "f"}
+	//g := []string{"j", "k", "l"}
+
+	hh := NewHistory(20)
+	heap.Push(hh, c)
+	heap.Push(hh, x)
+	heap.Push(hh, a)
+
+	if hh.Hist(0) == nil {
+		t.Errorf("Heap Push not adding to correct end of list")
+	}
+	hh.PrintDump()
 }

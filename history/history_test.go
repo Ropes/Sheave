@@ -2,7 +2,6 @@ package history
 
 import (
 	"container/heap"
-	"fmt"
 	"testing"
 )
 
@@ -21,7 +20,7 @@ func TestInit(t *testing.T) {
 	}
 	heap.Push(hh, a)
 
-	fmt.Printf("hh: %#v\n", hh)
+	//fmt.Printf("hh: %#v\n", hh)
 	if hh == nil {
 		t.Errorf("First history stored is: %#v", hh)
 	}

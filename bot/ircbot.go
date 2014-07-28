@@ -1,12 +1,14 @@
 package bot
 
 import (
+	"container/heap"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 
 	"github.com/ropes/anagrams"
+	"github.com/ropes/sheave/history"
 	"github.com/ropes/sheave/parse"
 	"github.com/thoj/go-ircevent"
 )
@@ -76,9 +78,30 @@ func GopherHandler(e *irc.Event, con *irc.Connection) {
 	}
 }
 
-//AnagramHandler will record previous messages in a pool of strings
+var ChannelHistory map[string]history.HistoryHeap
+
+//ChannelHistorian takes channel messages and records them in a HistoryHeap to
+//save them for potential anagramming!
+func ChannelHistorian(e *irc.Event) {
+	channel := e.Arguments[0]
+
+	msg := strings.Split(strings.Trim(e.Arguments[1], " "), " ")
+
+	hh := ChannelHistory[channel]
+	fmt.Printf("CH received: %#v\n", msg)
+	fmt.Printf("ChanHist: %#v\n", hh)
+
+	heap.Push(&hh, msg)
+}
+
+//parseMsg breaks apart a privmsg and returns a list of strings to be anagramed
+func parseMsg(s string) []string {
+	return strings.Split(strings.Trim(s, " "), " ")
+}
+
+//AnagramHandler will record previous messages in a queue of strings
 //
-func AnagramHandler(e *irc.Event, con *irc.Connection) {
+func AnagramResponder(e *irc.Event, con *irc.Connection) {
 	channel := e.Arguments[0]
 	if cmd := strings.Trim(e.Arguments[1], " "); cmd[0] == '!' && len(e.Arguments) >= 2 {
 		if cmd == "!anagram" {
@@ -105,15 +128,22 @@ func IRCConnect(ircconfig parse.IRCConfig) {
 		panic(fmt.Sprintf("Error connecting to server: %s", ircconfig.Server))
 	}
 	con.AddCallback("001", func(e *irc.Event) {
-		con.Join("#pdxbots")
-		con.Join("#pdxgo")
-		con.Join("#pdxtech")
+		chans := []string{"#pdxbots", "#pdxgo", "#pdxtech"}
+
+		for _, v := range chans {
+			fmt.Println("Initializing: ", v)
+			ChannelHistory[v] = *history.NewHistory(20)
+			con.Join(v)
+		}
 	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
 		GopherHandler(e, con)
 	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
-		AnagramHandler(e, con)
+		ChannelHistorian(e)
+	})
+	con.AddCallback("PRIVMSG", func(e *irc.Event) {
+		AnagramResponder(e, con)
 	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
 		log.Printf("%s %s: %s", e.Arguments[0], e.Nick, e.Arguments[1])

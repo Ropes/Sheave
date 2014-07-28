@@ -35,6 +35,10 @@ func (hh *HistoryHeap) Pop() interface{} {
 	return x
 }
 
+func (hh *HistoryHeap) Hist(i int) []string {
+	return hh.heap[i]
+}
+
 //NewHistory initializes a new HistoryHeap given the limit variable
 func NewHistory(limit int) *HistoryHeap {
 	hh := HistoryHeap{limit: limit}

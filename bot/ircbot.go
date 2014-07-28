@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/ropes/anagrams"
@@ -105,12 +107,28 @@ func parseMsg(s string) []string {
 //AnagramResponder returns previous user messages with text anagramed
 func AnagramResponder(e *irc.Event, con *irc.Connection) {
 	channel := e.Arguments[0]
-	if cmd := strings.Trim(e.Arguments[1], " "); cmd[0] == '!' && len(e.Arguments) >= 2 {
-		if cmd == "!anagram" {
-			x := []string{"stop", "trust", "anagram"}
-			s := AM.AnagramSentence(x)
-			con.Privmsg(channel, strings.Join(s, " "))
+	trimmed := strings.Trim(e.Arguments[1], " ")
+	re := regexp.MustCompile("([0-9])*([!]+)anagram[s]*")
+
+	if cmd := re.FindStringSubmatch(trimmed); len(cmd) == 3 {
+		//Parse command
+		back := -1
+		if cmd[2] != "" {
+			back += len(cmd[2])
 		}
+		if cmd[1] != "" {
+			b, _ := strconv.Atoi(cmd[1])
+			back += b
+		}
+
+		//Pull previous msg from history
+		hh := ChannelHistory[channel]
+		x := hh.Hist(back)
+
+		s := AM.AnagramSentence(x)
+		fmt.Printf("Anagramed: %#v\n", s)
+
+		//con.Privmsg(channel, strings.Join(s, " "))
 	}
 }
 
@@ -142,10 +160,10 @@ func IRCConnect(ircconfig parse.IRCConfig) {
 		GopherHandler(e, con)
 	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
-		ChannelHistorian(e)
+		AnagramResponder(e, con)
 	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
-		AnagramResponder(e, con)
+		ChannelHistorian(e)
 	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
 		log.Printf("%s %s: %s", e.Arguments[0], e.Nick, e.Arguments[1])

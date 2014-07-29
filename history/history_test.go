@@ -1,9 +1,6 @@
 package history
 
-import (
-	"container/heap"
-	"testing"
-)
+import "testing"
 
 var x []string
 var a []string
@@ -37,18 +34,44 @@ func TestPop(t *testing.T) {
 	a = []string{"a", "b", "c"}
 	//fmt.Println(x, a)
 
-	hh := NewHistory(2)
+	hh := NewHistory(20)
 	//heap.Push(hh, x)
 	//heap.Push(hh, a)
 	hh.Add(x)
 	hh.Add(a)
 
-	poped := heap.Pop(hh).([]string)
-	if poped[0] != "a" {
+	lasti := hh.lastIndex()
+	if lasti != 1 {
+		t.Errorf("Last index not being calculated correctly %#v", lasti)
+	}
+
+	poped := hh.Pop().([]string)
+
+	//fmt.Printf("Popped: %#v", poped)
+	if poped[0] != "x" {
 		t.Errorf("Wrong element poped from stack: %#v\n", poped)
 	}
-	if len(hh.heap) != 1 {
+	if hh.heap[1] != nil {
+		t.Errorf("Element not set to nil after being removed!")
+	}
+	if hh.Len() != 1 {
 		t.Errorf("Too many items in heap? %#v\n", hh)
+	}
+}
+
+func TestLastIndex(t *testing.T) {
+	x = []string{"x", "y", "z"}
+	a = []string{"a", "b", "c"}
+	c := []string{"d", "e", "f"}
+
+	hh := NewHistory(20)
+	hh.Add(x)
+	hh.Add(a)
+	hh.Add(c)
+
+	lasti := hh.lastIndex()
+	if lasti != 2 {
+		t.Errorf("LastIndex being calculated wrong: %#v", lasti)
 	}
 }
 
@@ -94,5 +117,23 @@ func TestInsertion(t *testing.T) {
 	if hh.Hist(0) == nil {
 		t.Errorf("Heap Push not adding to correct end of list")
 	}
-	hh.PrintDump()
+	//hh.PrintDump()
+}
+
+func TestLen(t *testing.T) {
+	x = []string{"x", "y", "z"}
+	a = []string{"a", "b", "c"}
+	c := []string{"d", "e", "f"}
+	g := []string{"j", "k", "l"}
+
+	hh := NewHistory(20)
+	hh.Add(x)
+	hh.Add(a)
+	hh.Add(c)
+	hh.Add(g)
+
+	if hh.Len() != 4 {
+		t.Errorf("Error: hh.Len() not 4! %#v", hh)
+	}
+
 }

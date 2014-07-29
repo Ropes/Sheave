@@ -10,7 +10,14 @@ type HistoryHeap struct {
 }
 
 //Len returns length of heap
-func (hh HistoryHeap) Len() int { return len(hh.heap) }
+func (hh HistoryHeap) Len() int {
+	for i := 0; i < len(hh.heap); i++ {
+		if hh.heap[i] == nil {
+			return i
+		}
+	}
+	return 0 // len(hh.heap)
+}
 
 //Less isn't functional, not used since no need to sort
 func (hh HistoryHeap) Less(i, j int) bool { return true }
@@ -34,7 +41,21 @@ func (hh *HistoryHeap) Push(newString interface{}) {
 		hh.heap[i] = hh.heap[i-1]
 	}
 	hh.heap[0] = newString.([]string)
-	hh.PrintDump()
+}
+
+func (hh *HistoryHeap) lastIndex() int {
+	if endi := len(hh.heap) - 1; hh.heap[endi] != nil {
+		return endi
+	}
+	if hh.heap[0] == nil {
+		return 0
+	}
+	for i := 1; i < len(hh.heap); i++ {
+		if hh.heap[i] == nil {
+			return i - 1
+		}
+	}
+	return len(hh.heap)
 }
 
 //Add string to the heap and removes an element if the limit has been reached.
@@ -48,10 +69,10 @@ func (hh *HistoryHeap) Add(newString interface{}) {
 
 //Pop removes and returns the oldest element in the heap
 func (hh *HistoryHeap) Pop() interface{} {
-	old := hh.heap
-	n := len(old)
-	x := old[n-1]
-	hh.heap = old[0 : n-1]
+	//n := len(old)
+	n := hh.lastIndex()
+	x := hh.heap[n]
+	hh.heap[n] = nil
 	return x
 }
 

@@ -39,13 +39,11 @@ func (hh *HistoryHeap) Push(newString interface{}) {
 
 //Add string to the heap and removes an element if the limit has been reached.
 func (hh *HistoryHeap) Add(newString interface{}) {
-	fmt.Printf("\nAdding: %#v\n", newString)
-
 	for i := len(hh.heap) - 1; i > 0; i-- {
 		hh.heap[i] = hh.heap[i-1]
 	}
 	hh.heap[0] = newString.([]string)
-	hh.PrintDump()
+	//hh.PrintDump()
 }
 
 //Pop removes and returns the oldest element in the heap

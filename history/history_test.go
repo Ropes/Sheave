@@ -14,8 +14,10 @@ func TestInit(t *testing.T) {
 	//fmt.Println(x, a)
 
 	hh := NewHistory(20)
-	heap.Push(hh, x)
-	if hh.heap[0][0] != "x" {
+	hh.PrintDump()
+	hh.Push(x)
+	hh.PrintDump()
+	if hh.heap[1][0] != "x" {
 		t.Errorf("First element incorrect: %#v", hh.heap[0][0])
 	}
 	heap.Push(hh, a)
@@ -72,6 +74,8 @@ func TestInsertion(t *testing.T) {
 	hh := NewHistory(20)
 	heap.Push(hh, c)
 	heap.Push(hh, x)
+	heap.Push(hh, a)
+	heap.Push(hh, c)
 	heap.Push(hh, a)
 
 	if hh.Hist(0) == nil {

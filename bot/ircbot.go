@@ -92,8 +92,8 @@ func ChannelHistorian(e *irc.Event) {
 	msg := strings.Split(strings.Trim(e.Arguments[1], " "), " ")
 
 	hh := ChannelHistory[channel]
-	fmt.Printf("Msg received: %#v\n", msg)
-	fmt.Printf("ChanHist: %#v %#v\n", channel, hh)
+	//fmt.Printf("Msg received: %#v\n", msg)
+	//fmt.Printf("ChanHist: %#v %#v\n", channel, hh)
 
 	if msg != nil {
 		hh.Add(msg)
@@ -106,7 +106,7 @@ func parseMsg(s string) []string {
 }
 
 //AnagramResponder returns previous user messages with text anagramed
-func AnagramResponder(e *irc.Event, con *irc.Connection) {
+func AnagramResponder(e *irc.Event, con *irc.Connection, logger *log.Logger) {
 	channel := e.Arguments[0]
 	trimmed := strings.Trim(e.Arguments[1], " ")
 	re := regexp.MustCompile("([0-9]*)*([!]+)anagram[s]*")
@@ -122,7 +122,6 @@ func AnagramResponder(e *irc.Event, con *irc.Connection) {
 			back += b
 		}
 
-		fmt.Printf("Back: %#v", back)
 		hh := ChannelHistory[channel]
 		//Pull previous msg from history
 		if back > hh.Len() && back < 20 {
@@ -136,6 +135,7 @@ func AnagramResponder(e *irc.Event, con *irc.Connection) {
 		x := hh.Hist(back)
 
 		s := AM.AnagramSentence(x)
+		logger.Printf("Anagraming: %#v -> %#v\n", x, s)
 
 		con.Privmsg(channel, "Anagramed: "+strings.Join(s, " "))
 	}
@@ -150,7 +150,13 @@ func IRCConnect(ircconfig parse.IRCConfig) {
 	if err != nil {
 		panic(fmt.Sprintf("Failed to open log file:%s", err))
 	}
-	log := log.New(file, "sheave:", log.Ldate|log.Ltime|log.Lshortfile)
+	irclog := log.New(file, "sheave:", log.Ldate|log.Ltime|log.Lshortfile)
+
+	anagramfile, err := os.OpenFile("anagraming.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to open anagram log file: %s", err))
+	}
+	anagramlog := log.New(anagramfile, "sheave:", log.Ldate|log.Ltime|log.Lshortfile)
 
 	con.Connect(ircconfig.Server)
 	if err != nil {
@@ -169,13 +175,13 @@ func IRCConnect(ircconfig parse.IRCConfig) {
 		GopherHandler(e, con)
 	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
-		AnagramResponder(e, con)
+		AnagramResponder(e, con, anagramlog)
 	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
 		ChannelHistorian(e)
 	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
-		log.Printf("%s %s: %s", e.Arguments[0], e.Nick, e.Arguments[1])
+		irclog.Printf("%s %s: %s", e.Arguments[0], e.Nick, e.Arguments[1])
 	})
 	con.Loop()
 }

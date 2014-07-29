@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"container/heap"
 	"fmt"
 	"log"
 	"os"
@@ -96,7 +95,9 @@ func ChannelHistorian(e *irc.Event) {
 	fmt.Printf("Msg received: %#v\n", msg)
 	fmt.Printf("ChanHist: %#v %#v\n", channel, hh)
 
-	heap.Push(&hh, msg)
+	if msg != nil {
+		hh.Add(msg)
+	}
 }
 
 //parseMsg breaks apart a privmsg and returns a list of strings to be anagramed
@@ -108,7 +109,7 @@ func parseMsg(s string) []string {
 func AnagramResponder(e *irc.Event, con *irc.Connection) {
 	channel := e.Arguments[0]
 	trimmed := strings.Trim(e.Arguments[1], " ")
-	re := regexp.MustCompile("([0-9])*([!]+)anagram[s]*")
+	re := regexp.MustCompile("([0-9]*)*([!]+)anagram[s]*")
 
 	if cmd := re.FindStringSubmatch(trimmed); len(cmd) == 3 {
 		//Parse command
@@ -121,14 +122,22 @@ func AnagramResponder(e *irc.Event, con *irc.Connection) {
 			back += b
 		}
 
-		//Pull previous msg from history
+		fmt.Printf("Back: %#v", back)
 		hh := ChannelHistory[channel]
+		//Pull previous msg from history
+		if back > hh.Len() && back < 20 {
+			con.Privmsg(channel, "Sorry, sheave doesn't have history recorded that far back :(")
+			return
+		} else if back > hh.Len() && back > 20 {
+			con.Privmsg(channel, "sheave is limited to 20 previous messages per channel")
+			return
+		}
+
 		x := hh.Hist(back)
 
 		s := AM.AnagramSentence(x)
-		fmt.Printf("Anagramed: %#v\n", s)
 
-		//con.Privmsg(channel, strings.Join(s, " "))
+		con.Privmsg(channel, "Anagramed: "+strings.Join(s, " "))
 	}
 }
 

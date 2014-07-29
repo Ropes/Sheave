@@ -11,9 +11,9 @@ func TestInit(t *testing.T) {
 	//fmt.Println(x, a)
 
 	hh := NewHistory(20)
-	hh.PrintDump()
+	//hh.PrintDump()
 	hh.Add(x)
-	hh.PrintDump()
+	//hh.PrintDump()
 	if hh.heap[0][0] != "x" {
 		t.Errorf("First element incorrect: %#v", hh.heap[0][0])
 	}
@@ -127,6 +127,11 @@ func TestLen(t *testing.T) {
 	g := []string{"j", "k", "l"}
 
 	hh := NewHistory(20)
+
+	if hh.Len() != 0 {
+		t.Errorf("Limit should be zero! %#v", hh)
+	}
+
 	hh.Add(x)
 	hh.Add(a)
 	hh.Add(c)
@@ -136,4 +141,12 @@ func TestLen(t *testing.T) {
 		t.Errorf("Error: hh.Len() not 4! %#v", hh)
 	}
 
+	for i := 0; i < 21; i++ {
+		hh.Add(g)
+	}
+
+	if hh.Len() != 20 {
+		hh.PrintDump()
+		t.Errorf("Error: Length grew beyond it's supposed limit: %#v", hh.Len())
+	}
 }

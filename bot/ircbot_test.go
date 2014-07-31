@@ -7,7 +7,6 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/ropes/sheave/bot"
 	"github.com/ropes/sheave/parse"
 )
 
@@ -38,13 +37,15 @@ func equals(tb testing.TB, exp, act interface{}) {
 	}
 }
 
+/*
 //Events contain both hack/talk night Event structs for global access
 type Events struct {
 	hacknight parse.CalEvent
 	talknight parse.CalEvent
 }
 
-var CalEvents Events
+//var CalEvents Events
+*/
 
 func loadCalendar(hackPath, talkPath string) {
 	c := make(chan parse.CalEvent)
@@ -68,7 +69,7 @@ func TestEventResponse(t *testing.T) {
 	go parse.ParseEvent("testing/resources/talking.json", c)
 	jsn := <-c
 
-	out := bot.EventResponse(jsn, "ropes", "Talk Night")
+	out := EventResponse(jsn, "ropes", "Talk Night")
 	fmt.Printf("%#v\n", out)
 	if len(out) != 3 {
 		t.Errorf("Three strings not returned!")

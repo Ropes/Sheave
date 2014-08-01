@@ -11,18 +11,21 @@ type HistoryHeap struct {
 
 //Len returns length of valid elements in the heap.  Will be less than the total limit until the heap fills.
 func (hh HistoryHeap) Len() int {
-	l := len(hh.heap)
+	/*
+		l := len(hh.heap)
 
-	if hh.heap[l-1] != nil {
-		return l
-	}
-
-	for i := 0; i < l; i++ {
-		if hh.heap[i] == nil {
-			return i
+		if hh.heap[l-1] != nil {
+			return l
 		}
-	}
-	return l // len(hh.heap)
+
+		for i := 0; i < l; i++ {
+			if hh.heap[i] == nil {
+				return i
+			}
+		}
+		return l // len(hh.heap)
+	*/
+	return len(hh.heap)
 }
 
 //Less isn't functional, not used since no need to sort
@@ -34,19 +37,12 @@ func (hh HistoryHeap) Swap(i, j int) { hh.heap[i], hh.heap[j] = hh.heap[j], hh.h
 //Push adds string to the heap and removes an element if the limit has been reached.
 func (hh *HistoryHeap) Push(newString interface{}) {
 	fmt.Printf("\nPushing: %#v\n", newString)
-	/*
-		if len(hh.heap) < hh.limit {
-			hh.heap = append(hh.heap, newString.([]string))
-		} else {
-			hh.Pop()
-			hh.heap = append(hh.heap, newString.([]string))
-		}
-	*/
-
-	for i := len(hh.heap) - 1; i > 0; i-- {
-		hh.heap[i] = hh.heap[i-1]
+	if len(hh.heap) < hh.limit {
+		hh.heap = append(hh.heap, newString.([]string))
+	} else {
+		hh.Pop()
+		hh.heap = append(hh.heap, newString.([]string))
 	}
-	hh.heap[0] = newString.([]string)
 }
 
 func (hh *HistoryHeap) lastIndex() int {
@@ -75,10 +71,11 @@ func (hh *HistoryHeap) Add(newString interface{}) {
 
 //Pop removes and returns the oldest element in the heap
 func (hh *HistoryHeap) Pop() interface{} {
-	//n := len(old)
-	n := hh.lastIndex()
-	x := hh.heap[n]
-	hh.heap[n] = nil
+	old := hh.heap
+	n := len(old)
+	//n := hh.lastIndex()
+	x := old[n-1]
+	hh.heap = old[0 : n-1]
 	return x
 }
 
@@ -96,6 +93,6 @@ func (hh *HistoryHeap) PrintDump() {
 //NewHistory initializes a new HistoryHeap given the limit variable
 func NewHistory(limit int) *HistoryHeap {
 	hh := HistoryHeap{limit: limit}
-	hh.heap = make([][]string, limit)
+	hh.heap = make([][]string, 0)
 	return &hh
 }

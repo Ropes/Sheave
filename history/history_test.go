@@ -1,6 +1,9 @@
 package history
 
-import "testing"
+import (
+	"container/heap"
+	"testing"
+)
 
 var x []string
 var a []string
@@ -11,14 +14,16 @@ func TestInit(t *testing.T) {
 	//fmt.Println(x, a)
 
 	hh := NewHistory(20)
+	heap.Init(hh)
 	//hh.PrintDump()
-	hh.Add(x)
+	heap.Push(hh, x)
+	//hh.Add(x)
 	//hh.PrintDump()
 	if hh.heap[0][0] != "x" {
 		t.Errorf("First element incorrect: %#v", hh.heap[0][0])
 	}
-	//heap.Push(hh, a)
-	hh.Add(a)
+	heap.Push(hh, a)
+	//hh.Add(a)
 
 	//fmt.Printf("hh: %#v\n", hh)
 	if hh == nil {
@@ -35,13 +40,18 @@ func TestPop(t *testing.T) {
 	//fmt.Println(x, a)
 
 	hh := NewHistory(20)
-	//heap.Push(hh, x)
-	//heap.Push(hh, a)
-	hh.Add(x)
-	hh.Add(a)
+	heap.Init(hh)
+	heap.Push(hh, x)
+	heap.Push(hh, x)
+	heap.Push(hh, a)
+	/*
+		hh.Add(x)
+		hh.Add(a)
+	*/
 
 	lasti := hh.lastIndex()
-	if lasti != 1 {
+	if lasti != 2 {
+		hh.PrintDump()
 		t.Errorf("Last index not being calculated correctly %#v", lasti)
 	}
 
@@ -51,10 +61,8 @@ func TestPop(t *testing.T) {
 	if poped[0] != "x" {
 		t.Errorf("Wrong element poped from stack: %#v\n", poped)
 	}
-	if hh.heap[1] != nil {
-		t.Errorf("Element not set to nil after being removed!")
-	}
-	if hh.Len() != 1 {
+	if hh.Len() != 2 {
+		hh.PrintDump()
 		t.Errorf("Too many items in heap? %#v\n", hh)
 	}
 }
@@ -65,9 +73,16 @@ func TestLastIndex(t *testing.T) {
 	c := []string{"d", "e", "f"}
 
 	hh := NewHistory(20)
-	hh.Add(x)
-	hh.Add(a)
-	hh.Add(c)
+	heap.Init(hh)
+	heap.Push(hh, x)
+
+	/*
+		hh.Add(x)
+		hh.Add(a)
+		hh.Add(c)
+	*/
+	heap.Push(hh, a)
+	heap.Push(hh, c)
 
 	lasti := hh.lastIndex()
 	if lasti != 2 {
@@ -82,16 +97,17 @@ func TestRound(t *testing.T) {
 	g := []string{"j", "k", "l"}
 
 	hh := NewHistory(2)
+	heap.Init(hh)
+	heap.Push(hh, x)
+	heap.Push(hh, a)
+	heap.Push(hh, c)
+	heap.Push(hh, g)
 	/*
-		heap.Push(hh, x)
-		heap.Push(hh, a)
-		heap.Push(hh, c)
-		heap.Push(hh, g)
+		hh.Add(x)
+		hh.Add(a)
+		hh.Add(c)
+		hh.Add(g)
 	*/
-	hh.Add(x)
-	hh.Add(a)
-	hh.Add(c)
-	hh.Add(g)
 
 	if len(hh.heap) > 2 {
 		t.Errorf("Heap grew beyond limit? \n%#v\n", hh)
@@ -104,15 +120,16 @@ func TestInsertion(t *testing.T) {
 	//g := []string{"j", "k", "l"}
 
 	hh := NewHistory(20)
+	heap.Init(hh)
+	heap.Push(hh, c)
+	heap.Push(hh, x)
+	heap.Push(hh, a)
+	heap.Push(hh, c)
+	heap.Push(hh, a)
 	/*
-		heap.Push(hh, c)
-		heap.Push(hh, x)
-		heap.Push(hh, a)
-		heap.Push(hh, c)
-		heap.Push(hh, a)
+		hh.Add(c)
+		hh.Add(x)
 	*/
-	hh.Add(c)
-	hh.Add(x)
 
 	if hh.Hist(0) == nil {
 		t.Errorf("Heap Push not adding to correct end of list")
@@ -127,23 +144,31 @@ func TestLen(t *testing.T) {
 	g := []string{"j", "k", "l"}
 
 	hh := NewHistory(20)
+	heap.Init(hh)
 
 	if hh.Len() != 0 {
 		t.Errorf("Limit should be zero! %#v", hh)
 	}
 
-	hh.Add(x)
-	hh.Add(a)
-	hh.Add(c)
-	hh.Add(g)
+	heap.Push(hh, x)
+	heap.Push(hh, a)
+	heap.Push(hh, c)
+	heap.Push(hh, g)
+	/*
+		hh.Add(x)
+		hh.Add(a)
+		hh.Add(c)
+		hh.Add(g)
+	*/
 
 	if hh.Len() != 4 {
 		t.Errorf("Error: hh.Len() not 4! %#v", hh)
 	}
 
 	for i := 0; i < 21; i++ {
-		hh.Add(g)
+		heap.Push(hh, g)
 	}
+	hh.PrintDump()
 
 	if hh.Len() != 20 {
 		hh.PrintDump()

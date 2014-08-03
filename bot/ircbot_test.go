@@ -1,12 +1,14 @@
 package bot
 
 import (
+	"container/heap"
 	"fmt"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"testing"
 
+	"github.com/ropes/sheave/history"
 	"github.com/ropes/sheave/parse"
 )
 
@@ -95,4 +97,40 @@ func TestTalkTargetEventParsing(t *testing.T) {
 	if jsn.Localtime != "Tuesday" {
 		t.Errorf("Localtime incorrect(Tuesday): %#v", jsn)
 	}
+}
+
+func TestHistoryHeapUsage(t *testing.T) {
+	hh1 := history.NewHistory(20)
+	x := []string{"x", "y", "z"}
+	a := []string{"a", "b", "c"}
+	c := []string{"d", "e", "f"}
+	g := []string{"j", "k", "l"}
+	ChannelHistory := make(map[string]*history.HistoryHeap)
+
+	heap.Init(hh1)
+	heap.Push(hh1, x)
+	heap.Push(hh1, a)
+	ChannelHistory["a"] = hh1
+
+	if hh1.Len() != 2 {
+		t.Errorf("Messages not being pushed correctly onto heap: %#v\n", hh1)
+	}
+
+	hh2 := history.NewHistory(20)
+	heap.Init(hh2)
+
+	ChannelHistory["b"] = hh2
+
+	d := ChannelHistory["b"]
+	heap.Push(d, c)
+
+	if ChannelHistory["b"].Len() != 1 {
+		t.Errorf("item was not put onto the heap")
+	}
+
+	heap.Push(hh2, g)
+	if ChannelHistory["b"].Len() != 2 {
+		t.Errorf("Second item not pushed into heap")
+	}
+
 }

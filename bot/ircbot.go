@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"container/heap"
 	"fmt"
 	"log"
 	"os"
@@ -82,7 +83,7 @@ func GopherHandler(e *irc.Event, con *irc.Connection) {
 }
 
 //ChannelHistory is a map of channel histories recording recent user messages
-var ChannelHistory map[string]history.HistoryHeap
+var ChannelHistory map[string]*history.HistoryHeap
 
 //ChannelHistorian takes channel messages and records them in a HistoryHeap to
 //save them for potential anagramming!
@@ -96,7 +97,9 @@ func ChannelHistorian(e *irc.Event) {
 	//fmt.Printf("ChanHist: %#v %#v\n", channel, hh)
 
 	if msg != nil {
-		hh.Add(msg)
+		heap.Push(hh, msg)
+		hh.PrintDump()
+		//hh.Add(msg)
 	}
 }
 
@@ -132,6 +135,7 @@ func AnagramResponder(e *irc.Event, con *irc.Connection, logger *log.Logger) {
 			return
 		}
 
+		logger.Printf("Anagraming %d back in channel: %#v\n%#v\n", back, channel, hh)
 		x := hh.Hist(back)
 
 		s := AM.AnagramSentence(x)
@@ -163,11 +167,14 @@ func IRCConnect(ircconfig parse.IRCConfig) {
 		panic(fmt.Sprintf("Error connecting to server: %s", ircconfig.Server))
 	}
 	con.AddCallback("001", func(e *irc.Event) {
-		chans := []string{"#pdxbots", "#pdxgo", "#pdxtech"}
 
-		for _, v := range chans {
-			fmt.Println("Initializing: ", v)
-			ChannelHistory[v] = *history.NewHistory(20)
+		for _, v := range ircconfig.Channels {
+			irclog.Printf("Initializing: %v\n", v)
+
+			hist := history.NewHistory(20)
+			heap.Init(hist)
+			ChannelHistory[v] = hist
+
 			con.Join(v)
 		}
 	})

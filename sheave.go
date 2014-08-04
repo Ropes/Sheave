@@ -17,7 +17,7 @@ func bootBot() {
 	anagrammap := anagrams.AnagramList(words)
 	bot.AM = &anagrams.AnagramMap{Mapping: anagrammap}
 
-	bot.ChannelHistory = make(map[string]history.HistoryHeap)
+	bot.ChannelHistory = make(map[string]*history.HistoryHeap)
 
 	ircconfig := parse.ParseConfig("/home/ropes/.config/sheave.conf")
 	bot.IRCConnect(ircconfig)

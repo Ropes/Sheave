@@ -154,12 +154,6 @@ func TestLen(t *testing.T) {
 	heap.Push(hh, a)
 	heap.Push(hh, c)
 	heap.Push(hh, g)
-	/*
-		hh.Add(x)
-		hh.Add(a)
-		hh.Add(c)
-		hh.Add(g)
-	*/
 
 	if hh.Len() != 4 {
 		t.Errorf("Error: hh.Len() not 4! %#v", hh)
@@ -174,4 +168,26 @@ func TestLen(t *testing.T) {
 		hh.PrintDump()
 		t.Errorf("Error: Length grew beyond it's supposed limit: %#v", hh.Len())
 	}
+}
+
+func TestEmptyHeap(t *testing.T) {
+	x = []string{"x", "y", "z"}
+	a = []string{"a", "b", "c"}
+
+	hh := NewHistory(20)
+	heap.Init(hh)
+
+	emp := hh.Hist(1)
+	if len(emp) != 0 {
+		t.Errorf("A panic will be thrown before this, but should be an empty string")
+	}
+
+	heap.Push(hh, x)
+	heap.Push(hh, a)
+
+	emp = hh.Hist(1)
+	if len(emp) == 0 {
+		t.Errorf("Valid value wasn't returned")
+	}
+
 }

@@ -67,7 +67,10 @@ func (hh *HistoryHeap) Pop() interface{} {
 
 //Hist returns the string array stored in .heap at index: i
 func (hh *HistoryHeap) Hist(i int) []string {
-	return hh.heap[i]
+	if i < hh.Len() {
+		return hh.heap[i]
+	}
+	return make([]string, 0) //Cannot return beyond the size of the heap
 }
 
 //PrintDump Displays all the data of the struct, limit and heap indexes with their respective string array data

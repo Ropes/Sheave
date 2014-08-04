@@ -108,9 +108,20 @@ func TestHistoryHeapUsage(t *testing.T) {
 	ChannelHistory := make(map[string]*history.HistoryHeap)
 
 	heap.Init(hh1)
+
+	fail := hh1.Hist(2)
+	if len(fail) != 0 {
+		t.Errorf("Asserting that empty string list returned from requesting bad history")
+	}
+
 	heap.Push(hh1, x)
 	heap.Push(hh1, a)
 	ChannelHistory["a"] = hh1
+
+	fail = hh1.Hist(2)
+	if len(fail) != 0 {
+		t.Errorf("Asserting that empty string list returned from requesting bad history")
+	}
 
 	if hh1.Len() != 2 {
 		t.Errorf("Messages not being pushed correctly onto heap: %#v\n", hh1)

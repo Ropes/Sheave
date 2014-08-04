@@ -127,10 +127,10 @@ func AnagramResponder(e *irc.Event, con *irc.Connection, logger *log.Logger) {
 
 		hh := ChannelHistory[channel]
 		//Pull previous msg from history
-		if back > hh.Len() && back < 20 {
+		if back >= hh.Len() && back < 20 {
 			con.Privmsg(channel, "Sorry, sheave doesn't have history recorded that far back :(")
 			return
-		} else if back > hh.Len() && back > 20 {
+		} else if back >= hh.Len() && back > 20 {
 			con.Privmsg(channel, "sheave is limited to 20 previous messages per channel")
 			return
 		}

@@ -11,20 +11,6 @@ type HistoryHeap struct {
 
 //Len returns length of valid elements in the heap.  Will be less than the total limit until the heap fills.
 func (hh HistoryHeap) Len() int {
-	/*
-		l := len(hh.heap)
-
-		if hh.heap[l-1] != nil {
-			return l
-		}
-
-		for i := 0; i < l; i++ {
-			if hh.heap[i] == nil {
-				return i
-			}
-		}
-		return l // len(hh.heap)
-	*/
 	return len(hh.heap)
 }
 

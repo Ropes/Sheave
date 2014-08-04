@@ -36,7 +36,7 @@ func (hh HistoryHeap) Swap(i, j int) { hh.heap[i], hh.heap[j] = hh.heap[j], hh.h
 
 //Push adds string to the heap and removes an element if the limit has been reached.
 func (hh *HistoryHeap) Push(newString interface{}) {
-	fmt.Printf("\nPushing: %#v\n", newString)
+	//fmt.Printf("Pushing onto heap: %#v\n", newString)
 	if len(hh.heap) < hh.limit {
 		hh.heap = append(hh.heap, newString.([]string))
 	} else {
@@ -79,10 +79,12 @@ func (hh *HistoryHeap) Pop() interface{} {
 	return x
 }
 
+//Hist returns the string array stored in .heap at index: i
 func (hh *HistoryHeap) Hist(i int) []string {
 	return hh.heap[i]
 }
 
+//PrintDump Displays all the data of the struct, limit and heap indexes with their respective string array data
 func (hh *HistoryHeap) PrintDump() {
 	fmt.Println("HistoryHeap, limit: ", hh.limit)
 	for i, v := range hh.heap {

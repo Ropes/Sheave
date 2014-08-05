@@ -108,6 +108,20 @@ func parseMsg(s string) []string {
 	return strings.Split(strings.Trim(s, " "), " ")
 }
 
+func AnagramCmdParse(trimmed string) []string {
+	re := regexp.MustCompile("([0-9]*)*([!]+)anagram[s]*.*")
+	sentence := regexp.MustCompile(".*!anagram[s]* [(.+) ]*")
+
+	if cmd := re.FindStringSubmatch(trimmed); len(cmd) == 3 {
+		words := sentence.FindStringSubmatch(trimmed)
+		if len(words) > 0 {
+			return words
+		}
+		return cmd
+	}
+	return make([]string, 0)
+}
+
 //AnagramResponder returns previous user messages with text anagramed
 func AnagramResponder(e *irc.Event, con *irc.Connection, logger *log.Logger) {
 	channel := e.Arguments[0]

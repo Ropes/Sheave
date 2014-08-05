@@ -145,3 +145,22 @@ func TestHistoryHeapUsage(t *testing.T) {
 	}
 
 }
+
+func TestAnagramParsing(t *testing.T) {
+	x := "2!anagram"
+	ret := AnagramCmdParse(x)
+	if ret[1] != "2" {
+		t.Errorf("Number not being parsed correctly")
+	}
+
+	x = "!anagram"
+	ret = AnagramCmdParse(x)
+
+	x = "!anagram ropes tis flat"
+	ret = AnagramCmdParse(x)
+	if len(ret) > 2 && ret[1] != "!anagram" {
+		t.Errorf("Base command failed to be parsed")
+	}
+	fmt.Println(ret)
+
+}

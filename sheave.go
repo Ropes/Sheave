@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
 
 	"github.com/ropes/anagrams"
 	"github.com/ropes/sheave/bot"
@@ -19,7 +21,16 @@ func bootBot() {
 
 	bot.ChannelHistory = make(map[string]*history.HistoryHeap)
 
-	ircconfig := parse.ParseConfig("/home/ropes/.config/sheave.conf")
+	confPath := flag.String("confPath",
+		"/home/ropes/.config/sheave.conf",
+		"Path to config file for Sheave bot.")
+	flag.Parse()
+
+	ircconfig := parse.ParseConfig(*confPath)
+	if ircconfig.UserName == "" || ircconfig.Passwd == "" {
+		log.Fatal("IRC Config failed to parse important information.")
+	}
+	fmt.Printf("%#v\n", ircconfig)
 	bot.IRCConnect(ircconfig)
 }
 

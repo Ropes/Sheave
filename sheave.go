@@ -12,7 +12,15 @@ import (
 )
 
 func bootBot() {
-	words, err := anagrams.ReadSystemWords()
+	confPath := flag.String("confPath",
+		"/home/ropes/.config/sheave.conf",
+		"Path to config file for Sheave bot.")
+	dictPath := flag.String("dictPath",
+		"/usr/share/dict/words",
+		"Path to dictionary word list file")
+	flag.Parse()
+
+	words, err := anagrams.ReadCustomWords(*dictPath)
 	if err != nil {
 		fmt.Println("No error reading word list")
 	}
@@ -21,16 +29,10 @@ func bootBot() {
 
 	bot.ChannelHistory = make(map[string]*history.HistoryHeap)
 
-	confPath := flag.String("confPath",
-		"/home/ropes/.config/sheave.conf",
-		"Path to config file for Sheave bot.")
-	flag.Parse()
-
 	ircconfig := parse.ParseConfig(*confPath)
 	if ircconfig.UserName == "" || ircconfig.Passwd == "" {
 		log.Fatal("IRC Config failed to parse important information.")
 	}
-	fmt.Printf("%#v\n", ircconfig)
 	bot.IRCConnect(ircconfig)
 }
 

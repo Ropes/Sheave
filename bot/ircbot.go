@@ -159,10 +159,17 @@ func AnagramResponder(e *irc.Event, con *irc.Connection, logger *log.Logger) {
 	}
 }
 
-//IRCConnect initializes and runs the irc connection and adds the GopherHandler to its event loop for parsing messages
-func IRCConnect(ircconfig parse.IRCConfig) {
+func IRCCreateConn(ircconfig parse.IRCConfig) *irc.Connection {
 	con := irc.IRC(ircconfig.UserName, ircconfig.UserName)
 	con.Password = ircconfig.Passwd
+
+	con.Connect(ircconfig.Server)
+	return con
+}
+
+//IRCConnect initializes and runs the irc connection and adds the GopherHandler to its event loop for parsing messages
+func IRCConnect(ircconfig parse.IRCConfig) {
+	con := IRCCreateConn(ircconfig)
 
 	file, err := os.OpenFile("irc.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
@@ -176,10 +183,6 @@ func IRCConnect(ircconfig parse.IRCConfig) {
 	}
 	anagramlog := log.New(anagramfile, "sheave:", log.Ldate|log.Ltime|log.Lshortfile)
 
-	con.Connect(ircconfig.Server)
-	if err != nil {
-		panic(fmt.Sprintf("Error connecting to server: %s", ircconfig.Server))
-	}
 	con.AddCallback("001", func(e *irc.Event) {
 
 		for _, v := range ircconfig.Channels {

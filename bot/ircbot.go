@@ -167,26 +167,25 @@ func IRCCreateConn(ircconfig parse.IRCConfig) *irc.Connection {
 	return con
 }
 
+func CreateLogger(filePath, linePrefix string) *log.Logger {
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to open log file:%s", err))
+	}
+	return log.New(file, linePrefix, log.Ldate|log.Ltime|log.Lshortfile)
+}
+
 //IRCConnect initializes and runs the irc connection and adds the GopherHandler to its event loop for parsing messages
 func IRCConnect(ircconfig parse.IRCConfig) {
 	con := IRCCreateConn(ircconfig)
 
-	file, err := os.OpenFile("irc.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to open log file:%s", err))
-	}
-	irclog := log.New(file, "sheave:", log.Ldate|log.Ltime|log.Lshortfile)
-
-	anagramfile, err := os.OpenFile("anagraming.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to open anagram log file: %s", err))
-	}
-	anagramlog := log.New(anagramfile, "sheave:", log.Ldate|log.Ltime|log.Lshortfile)
+	ircLog := CreateLogger("irc.log", "sheave:")
+	anagramLog := CreateLogger("anagrams.log", "anagrams:")
 
 	con.AddCallback("001", func(e *irc.Event) {
 
 		for _, v := range ircconfig.Channels {
-			irclog.Printf("Initializing: %v\n", v)
+			ircLog.Printf("Initializing: %v\n", v)
 
 			hist := history.NewHistory(20)
 			heap.Init(hist)
@@ -199,13 +198,13 @@ func IRCConnect(ircconfig parse.IRCConfig) {
 		GopherHandler(e, con)
 	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
-		AnagramResponder(e, con, anagramlog)
+		AnagramResponder(e, con, anagramLog)
 	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
 		ChannelHistorian(e)
 	})
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
-		irclog.Printf("%s %s: %s", e.Arguments[0], e.Nick, e.Arguments[1])
+		ircLog.Printf("%s %s: %s", e.Arguments[0], e.Nick, e.Arguments[1])
 	})
 	con.Loop()
 }

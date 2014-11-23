@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ropes/anagrams"
-	"github.com/ropes/sheave/history"
-	"github.com/ropes/sheave/parse"
+	"github.com/ropes/go-anagrams"
+	"github.com/ropes/sheave-bot/history"
+	"github.com/ropes/sheave-bot/parse"
 	"github.com/thoj/go-ircevent"
 )
 

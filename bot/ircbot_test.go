@@ -8,8 +8,8 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/ropes/sheave/history"
-	"github.com/ropes/sheave/parse"
+	"github.com/ropes/sheave-bot/history"
+	"github.com/ropes/sheave-bot/parse"
 )
 
 // assert fails the test if the condition is false.

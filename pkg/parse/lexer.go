@@ -158,9 +158,20 @@ func lexText(l *lexer) stateFn {
 
 func lexPrompt(l *lexer) stateFn {}
 
-func lexCmd(l *lexer) stateFn {}
+func lexCmd(l *lexer) stateFn {
+	tok, lit := l.Lex()
+	l.emit(tok, lit)
 
-func lexIdent(l *lexer) stateFn {}
+	switch tok {
+	case IDENT:
+		return lexIdent
+	default:
+		return l.errorf("lexCmd expected IDENT but got %q", tok)
+	}
+}
+
+func lexIdent(l *lexer) stateFn {
+}
 
 // isAlphaNumeric reports whether r is an alphabetic, digit, or underscore.
 // source: https://golang.org/src/text/template/parse/lex.go

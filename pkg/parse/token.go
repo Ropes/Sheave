@@ -6,6 +6,7 @@ const (
 	ILLEGAL Token = iota
 	EOF
 	WS
+	ERROR
 
 	// Prompt to execute
 	PROMPT

@@ -3,6 +3,7 @@ package parse
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"fmt"
 	"strings"
 	"unicode"
@@ -24,15 +25,19 @@ type lexer struct {
 
 	state stateFn
 	items chan item
+
+	ctx context.Context
 }
 
 // NewLex returns an initialized lexer.
-func NewLex(name string, input bufio.Reader) (*lexer, chan item) {
+func NewLex(ctx context.Context, name string, input bufio.Reader) (*lexer, chan item) {
 	l := &lexer{
 		name:  name,
 		input: input,
+		state: lexText,
 
-		items: make(chan item),
+		items: make(chan item, 2),
+		ctx:   ctx,
 	}
 	return l, l.items
 }
@@ -46,7 +51,7 @@ func (l *lexer) Lex() (tok Token, lit string) {
 	} else if isBang(ch) {
 		// no need to unread '!'
 		return l.lexPrompt()
-	} else if isAlphanumeric(ch) {
+	} else if isAlphaNumeric(ch) {
 		l.unread()
 		return l.lexWord()
 	}
@@ -64,14 +69,23 @@ func (l *lexer) emit(t Token, lit string) {
 }
 
 func (l *lexer) errorf(format string, args ...interface{}) stateFn {
-	l.items <- item{tok: ERROR, fmt.Sprintf(format, args...)}
+	l.items <- item{tok: ERROR, val: fmt.Sprintf(format, args...)}
+	return lexError
 }
 
-/*
 func (l *lexer) run() {
-	for l.state :=
+	for {
+		select {
+		case <-l.ctx.Done():
+			return
+		default:
+			if l.state == nil {
+				return
+			}
+			l.state = l.state(l)
+		}
+	}
 }
-*/
 
 func (l *lexer) lexPrompt() (tok Token, lit string) {
 	var p bytes.Buffer
@@ -79,7 +93,7 @@ func (l *lexer) lexPrompt() (tok Token, lit string) {
 	for {
 		if ch := l.read(); ch == eof {
 			break
-		} else if !isAlphanumeric(ch) {
+		} else if !isAlphaNumeric(ch) {
 			l.unread()
 			break
 		} else {
@@ -95,7 +109,7 @@ func (l *lexer) lexWord() (tok Token, lit string) {
 	for {
 		if ch := l.read(); ch == eof {
 			break
-		} else if !isAlphanumeric(ch) {
+		} else if !isAlphaNumeric(ch) {
 			l.unread()
 			break
 		} else {
@@ -156,7 +170,9 @@ func lexText(l *lexer) stateFn {
 	}
 }
 
-func lexPrompt(l *lexer) stateFn {}
+func lexPrompt(l *lexer) stateFn {
+	return nil
+}
 
 func lexCmd(l *lexer) stateFn {
 	tok, lit := l.Lex()
@@ -171,6 +187,19 @@ func lexCmd(l *lexer) stateFn {
 }
 
 func lexIdent(l *lexer) stateFn {
+	tok, lit := l.Lex()
+	l.emit(tok, lit)
+	switch tok {
+	case IDENT:
+		return lexIdent
+	default:
+		return l.errorf("error lexIdent token %v", tok)
+	}
+}
+
+func lexError(l *lexer) stateFn {
+	<-l.items
+	return nil
 }
 
 // isAlphaNumeric reports whether r is an alphabetic, digit, or underscore.
